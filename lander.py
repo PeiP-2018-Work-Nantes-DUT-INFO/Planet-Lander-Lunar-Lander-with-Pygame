@@ -6,6 +6,7 @@ import pygame
 class Gameconfig :
     windowH = 1300
     windowW = 700
+    white = (255,255,255)
 
 
 class GameState:
