@@ -8,6 +8,7 @@ class Gameconfig :
 
     windowH = 1300
     windowW = 700
+    white = (255,255,255)
 
     imgLander = pygame.image.load('lander.png')
     landerH = 50
