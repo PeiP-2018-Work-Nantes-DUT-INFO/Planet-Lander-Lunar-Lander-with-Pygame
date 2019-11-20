@@ -1,6 +1,8 @@
 from lander import *
 from random import randint
 import pygame;
+
+
 class Landing:
     @staticmethod
     def __init__(self):
@@ -20,12 +22,12 @@ class Landing:
 
     def draw(self, window):
         pygame.draw.lines(window, Gameconfig.white, self.plateforms())
-        return False;
+        return False
 
 
 class LangingConfig:
-    segmentPxLength = 5;
-    minSegmentOfLanding = 2;
-    maxSegmentOfLanding = 5;
+    segmentPxLength = 5
+    minSegmentOfLanding = 2
+    maxSegmentOfLanding = 5
     minHeightPlateformLanding = Gameconfig.windowH * 0.5
-    maxHeightPlateformLanding = Gameconfig.windowH - 20;
+    maxHeightPlateformLanding = Gameconfig.windowH - 20
