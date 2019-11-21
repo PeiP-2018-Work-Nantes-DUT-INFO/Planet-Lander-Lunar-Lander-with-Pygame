@@ -1,19 +1,10 @@
 # chargement des modules externes
 import pygame
+from GameConfig import GameConfig
+import landing
 import time
 from random import *
 
-
-# Définition des classes
-class GameConfig:
-    # Taille de la fenêtre
-    windowW = 1500
-    windowH = 700
-
-    # Initlisation du lander et de sa taille
-    lander = pygame.image.load('lander_normal.png')
-    imgLanderW = 30
-    imgLanderH = 30
 
 
 class GameState:
@@ -63,6 +54,7 @@ def gameloop(window, horloge):
 
     gameOver = False
     gameState = GameState()
+    land = landing.Landing()
     nextAngle = 0
     angle = 0
     w, h = GameConfig.lander.get_size()
@@ -83,6 +75,7 @@ def gameloop(window, horloge):
                 if event.key == pygame.K_ESCAPE:
                     gameOver = True
         angle += nextAngle
+        land.landingEntities.draw(window)
         blitRotate(window, GameConfig.lander, pos, (w / 2, h / 2), angle)
 
         pygame.display.flip()
