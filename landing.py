@@ -3,12 +3,13 @@ from random import randint
 import pygame;
 
 
-class Landing:
+class Landing(pygame.sprite.Sprite):
     @staticmethod
     def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
         self.plateforms = self.getPlateformsCoords()
-        self.segments = self
-        return False;
+        self.segments = []
+
 
     def getPlateformsCoords(self, numberOfPlateforms):
         listPlateforms = []
@@ -21,8 +22,8 @@ class Landing:
             listPlateforms.append((xPos, yPos, plateformLength))
 
     def draw(self, window):
-        pygame.draw.lines(window, Gameconfig.white, self.plateforms())
-        return False
+        for plateform in self.plateforms:
+             pygame.draw.lines(window, Gameconfig.white, )
 
 
 class LangingConfig:
