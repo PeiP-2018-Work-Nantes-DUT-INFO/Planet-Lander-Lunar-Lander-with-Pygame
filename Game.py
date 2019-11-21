@@ -3,15 +3,12 @@ import pygame
 import time
 from random import *
 
-# Chargement des classes
-import Lander
-
 
 # Définition des classes
 class GameConfig:
     # Taille de la fenêtre
     windowW = 1500
-    windowH = 800
+    windowH = 700
 
     # Initlisation du lander et de sa taille
     lander = pygame.image.load('lander_normal.png')
