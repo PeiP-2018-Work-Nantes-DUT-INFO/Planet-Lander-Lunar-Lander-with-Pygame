@@ -66,14 +66,14 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
 class Landing:
     def __init__(self):
         self.landingEntities = pygame.sprite.Group()
-        self.plateforms = self.getPlateformsCoords(LandingConfig.numberOfPlateforms)
+        self.plateforms = self.generatePlateforms(LandingConfig.numberOfPlateforms)
         self.landingStroke = LandingStroke(self.plateforms)
         self.landingEntities.add(self.landingStroke)
         for plateform in self.plateforms:
             plateformSprite = LandingPlateform(plateform)
             self.landingEntities.add(plateformSprite)
 
-    def getPlateformsCoords(self, numberOfPlateforms):
+    def generatePlateforms(self, numberOfPlateforms):
         listPlateforms = []
         for i in range(0, numberOfPlateforms):
             numberOfSegments = randint(LandingConfig.minSegmentOfLanding,
@@ -153,7 +153,6 @@ class LandingStroke(pygame.sprite.Sprite):
             start = [plateformsCopy[i][0] + plateformsCopy[i][2], plateformsCopy[i][1]]
             end = [plateformsCopy[i + 1][0], plateformsCopy[i + 1][1]]
             verticalDisplacement = self.getBestVerticalDisplacement(plateformsCopy[i], start, end)
-            # verticalDisplacement = self.nearestEdgeDistanceY(plateformsCopy[i])
             if LandingConfig.drawDebug:
                 self.drawDisplacementDebug(start, end, verticalDisplacement)
             segments.extend(midpoint_displacement(start, end, LandingConfig.roughness,
@@ -163,7 +162,11 @@ class LandingStroke(pygame.sprite.Sprite):
         return segments
 
     def getBestVerticalDisplacement(self, plateform, start, end):
-        return min(self.nearestEdgeDistanceY(plateform), (start[1] + end[1]) / 2)
+        distance = math.fabs(start[0] - end[0])
+        if distance > LandingConfig.minSizeBetweenPlateformDisplacementMode1:
+            return min(self.nearestEdgeDistanceY(plateform), (start[1] + end[1]) / 2)
+        else:
+            return math.fabs(start[1] - end[1]) / 2
 
     def nearestEdgeDistanceY(self, plateform):
         return min(math.fabs(LandingConfig.maxHeightMap - plateform[1]),
@@ -180,20 +183,22 @@ class LandingStroke(pygame.sprite.Sprite):
         font = pygame.font.Font(None, 20)
         img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextBonus)
         displayRect = img.get_rect()
-        middle = start[0] + end[0] / 2
-        displayRect.centerx = start[0] + end[0] / 2
+        middle = (start[0] + end[0]) / 2
+        displayRect.centerx = middle
         displayRect.top = 0
         self.image.blit(img, displayRect)
         pygame.draw.line(self.image, GameConfig.red, (middle, 0), (middle, GameConfig.windowH))
-        pygame.draw.circle(self.image, GameConfig.red, [int(start[0]), int(start[1])],
-                           6, 4)
-        pygame.draw.circle(self.image, GameConfig.red, [int(end[0]), int(end[1])],
-                           6, 4)
+        color = [randint(0, 255), randint(0, 255), randint(0, 255)]
+        pygame.draw.circle(self.image, color, [int(start[0]), int(start[1])],
+                           8, 6)
+        pygame.draw.circle(self.image, color, [int(end[0]), int(end[1])],
+                           8, 6)
 
 
 class LandingConfig:
-    numberOfPlateforms = 10
+    numberOfPlateforms = 5
     segmentPxLength = 15
+    minSizeBetweenPlateformDisplacementMode1 = 100
     lengthOfSegmentsBetweenPlateforms = 10
     colorPlateform = GameConfig.white
     segmentWidth = 1
