@@ -5,18 +5,8 @@ import bisect
 import math
 
 
-# class LandingStroke(pygame.sprite.Sprite):
-#     def __init__(self, a, b):
-#         pygame.sprite.Sprite.__init__(self)
-#         self.pt1 = a
-#         self.pt2 = b
-#         self.image = pygame.Surface([LangingConfig.segmentPxLength, LangingConfig.segmentPxLength])
-#         pygame.draw.line(self.image, Gameconfig.white, a[0], a[1], b[0], b[1])
-#         self.rect = self.image.get_rect()
-#         self.mask = pygame.mask.from_surface(self.image)
-
 # Algorithme itératif de déplacement du point central
-def midpoint_displacement(start, end, roughness, vertical_displacement=None,
+def midpoint_displacement(start, end, roughness, limit, vertical_displacement=None,
                           num_of_iterations=16):
     """
     Given a straight line segment specified by a starting point and an endpoint
@@ -52,8 +42,14 @@ def midpoint_displacement(start, end, roughness, vertical_displacement=None,
             midpoint = list(map(lambda x: (points_tup[i][x] + points_tup[i + 1][x]) / 2,
                                 [0, 1]))
             # Displace midpoint y-coordinate
-            midpoint[1] += choice([-vertical_displacement,
-                                   vertical_displacement])
+            goingUpDisplacement = -vertical_displacement
+            goingDownDisplacement = vertical_displacement
+            if midpoint[1] + goingUpDisplacement < limit[0]:
+                goingUpDisplacement = -(midpoint[1] - limit[0])
+            if midpoint[1] + goingDownDisplacement > limit[1]:
+                goingDownDisplacement = limit[1] - midpoint[1]
+            midpoint[1] += choice([goingUpDisplacement,
+                                   goingDownDisplacement])
             # Insert the displaced midpoint in the current list of points
             bisect.insort(points, midpoint)
             # bisect allows to insert an element in a list so that its order
@@ -70,64 +66,155 @@ def midpoint_displacement(start, end, roughness, vertical_displacement=None,
 class Landing:
     def __init__(self):
         self.landingEntities = pygame.sprite.Group()
-        self.landingStroke = LandingStroke()
+        self.plateforms = self.getPlateformsCoords(LandingConfig.numberOfPlateforms)
+        self.landingStroke = LandingStroke(self.plateforms)
         self.landingEntities.add(self.landingStroke)
+        for plateform in self.plateforms:
+            plateformSprite = LandingPlateform(plateform)
+            self.landingEntities.add(plateformSprite)
+
+    def getPlateformsCoords(self, numberOfPlateforms):
+        listPlateforms = []
+        for i in range(0, numberOfPlateforms):
+            numberOfSegments = randint(LandingConfig.minSegmentOfLanding,
+                                       LandingConfig.maxSegmentOfLanding)
+            plateformLength = numberOfSegments * LandingConfig.segmentPxLength
+            min = (i) * GameConfig.windowW / numberOfPlateforms
+            max = min + GameConfig.windowW / numberOfPlateforms - plateformLength
+            xPos = randint(min + 1, max)
+            yPos = randint(LandingConfig.minHeightPlateformLanding, LandingConfig.maxHeightPlateformLanding)
+            percentageDifficulty = (numberOfSegments - LandingConfig.minSegmentOfLanding) / (
+                    LandingConfig.maxSegmentOfLanding - LandingConfig.minSegmentOfLanding)
+            index = math.floor((len(LandingConfig.bonuses) - 1) * percentageDifficulty)
+            bonus = LandingConfig.bonuses[index]
+            listPlateforms.append((xPos, yPos, plateformLength, bonus))
+        return listPlateforms
+
+
+class LandingPlateform(pygame.sprite.DirtySprite):
+    def __init__(self, plateformCoords):
+        pygame.sprite.Sprite.__init__(self)
+        self.dirty = 2
+        self.delay = 0
+        self.highLight = False
+        self.coords = plateformCoords
+        self.image = pygame.Surface(
+            [plateformCoords[2], LandingConfig.segmentWidthPlateform + LandingConfig.fontSizeBonus], pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (self.coords[0], self.coords[1])
+        self.draw()
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def draw(self):
+        pygame.draw.line(self.image, LandingConfig.colorPlateform, (0, 0),
+                         (self.coords[2],
+                          0), LandingConfig.segmentWidthPlateform)
+
+    def update(self):
+        if self.coords[3] == 0:
+            return
+        if self.delay > LandingConfig.delayBlinkingPlateform:
+            self.image.fill((255, 255, 255, 0))
+            self.draw()
+            self.highLight = not self.highLight
+            self.delay = 0
+            self.dirty = 1
+        if self.highLight:
+            middle = self.coords[2] / 2
+            font = pygame.font.Font(None, LandingConfig.fontSizeBonus)
+            img = font.render('x' + str(self.coords[3]), True, LandingConfig.colorTextBonus)
+            displayRect = img.get_rect()
+            displayRect.centerx = middle
+            displayRect.bottom = displayRect.height + LandingConfig.segmentWidthPlateform + \
+                                 LandingConfig.offsetTextBonus
+            self.image.blit(img, displayRect)
+        self.delay += 1
 
 
 class LandingStroke(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, plateforms):
         pygame.sprite.Sprite.__init__(self)
-        self.plateforms = self.getPlateformsCoords(LangingConfig.numberOfPlateforms)
-        self.image = pygame.Surface([GameConfig.windowW, LangingConfig.height])
+        self.image = pygame.Surface([GameConfig.windowW, LandingConfig.height])
+        self.plateforms = plateforms
         self.segments = self.fillSegments(self.plateforms)
         self.drawMap(self.image)
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
 
-    def getPlateformsCoords(self, numberOfPlateforms):
-        listPlateforms = []
-        for i in range(0, numberOfPlateforms):
-            plateformLength = randint(LangingConfig.minSegmentOfLanding,
-                                      LangingConfig.maxSegmentOfLanding) * LangingConfig.segmentPxLength
-            min = (i) * GameConfig.windowW / numberOfPlateforms
-            max = min + GameConfig.windowW / numberOfPlateforms - plateformLength
-            xPos = randint(min, max)
-            yPos = randint(LangingConfig.minHeightPlateformLanding, LangingConfig.maxHeightPlateformLanding)
-            listPlateforms.append((xPos, yPos, plateformLength))
-        return listPlateforms
-
     def fillSegments(self, plateforms):
         segments = []
         plateformsCopy = plateforms.copy()
         plateformsCopy.insert(0, [0, GameConfig.windowH / 2, 0])
-        plateformsCopy.append([GameConfig.windowW, GameConfig.windowH / 2])
+        plateformsCopy.append([GameConfig.windowW, GameConfig.windowH / 2, 0])
         for i in range(0, len(plateformsCopy) - 1):
-            numberOfSegments = 16
-            segments.extend(midpoint_displacement([plateformsCopy[i][0] + plateformsCopy[i][2], plateformsCopy[i][1]],
-                                                  [plateformsCopy[i + 1][0], plateformsCopy[i + 1][1]],
-                                                  LangingConfig.roughness, num_of_iterations=numberOfSegments))
+            spaceBetweenPlateform = plateformsCopy[i + 1][0] - (plateformsCopy[i][0] + plateformsCopy[i][2])
+            numberOfSegments = math.ceil(
+                math.log(math.ceil(spaceBetweenPlateform / LandingConfig.lengthOfSegmentsBetweenPlateforms), 2))
+            start = [plateformsCopy[i][0] + plateformsCopy[i][2], plateformsCopy[i][1]]
+            end = [plateformsCopy[i + 1][0], plateformsCopy[i + 1][1]]
+            verticalDisplacement = self.getBestVerticalDisplacement(plateformsCopy[i], start, end)
+            # verticalDisplacement = self.nearestEdgeDistanceY(plateformsCopy[i])
+            if LandingConfig.drawDebug:
+                self.drawDisplacementDebug(start, end, verticalDisplacement)
+            segments.extend(midpoint_displacement(start, end, LandingConfig.roughness,
+                                                  (LandingConfig.minHeightMap, LandingConfig.maxHeightMap),
+                                                  verticalDisplacement, num_of_iterations=numberOfSegments))
 
         return segments
 
+    def getBestVerticalDisplacement(self, plateform, start, end):
+        return min(self.nearestEdgeDistanceY(plateform), (start[1] + end[1]) / 2)
+
+    def nearestEdgeDistanceY(self, plateform):
+        return min(math.fabs(LandingConfig.maxHeightMap - plateform[1]),
+                   math.fabs(LandingConfig.minHeightMap - plateform[1]))
+
     def drawMap(self, window):
-        for plateform in self.plateforms:
-            pygame.draw.line(window, GameConfig.red, (plateform[0], plateform[1]),
-                             (plateform[0] + plateform[2],
-                              plateform[1]))
-        it = iter(self.segments)
-        for pt in it:
-            nextPoint = next(it)
-            pygame.draw.line(window, GameConfig.white, pt, nextPoint)
+        for i in range(0, len(self.segments) - 1):
+            pygame.draw.line(window, GameConfig.white, self.segments[i], self.segments[i + 1])
+            if LandingConfig.drawDebug:
+                pygame.draw.circle(self.image, GameConfig.white, [int(self.segments[i][0]), int(self.segments[i][1])],
+                                   4, 4)
+
+    def drawDisplacementDebug(self, start, end, verticalDisplacement):
+        font = pygame.font.Font(None, 20)
+        img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextBonus)
+        displayRect = img.get_rect()
+        middle = start[0] + end[0] / 2
+        displayRect.centerx = start[0] + end[0] / 2
+        displayRect.top = 0
+        self.image.blit(img, displayRect)
+        pygame.draw.line(self.image, GameConfig.red, (middle, 0), (middle, GameConfig.windowH))
+        pygame.draw.circle(self.image, GameConfig.red, [int(start[0]), int(start[1])],
+                           6, 4)
+        pygame.draw.circle(self.image, GameConfig.red, [int(end[0]), int(end[1])],
+                           6, 4)
 
 
-
-class LangingConfig:
-    numberOfPlateforms = 3
-    segmentPxLength = 30
+class LandingConfig:
+    numberOfPlateforms = 10
+    segmentPxLength = 15
+    lengthOfSegmentsBetweenPlateforms = 10
+    colorPlateform = GameConfig.white
     segmentWidth = 1
-    minSegmentOfLanding = 1
-    maxSegmentOfLanding = 3
+    segmentWidthPlateform = 8
+    minSegmentOfLanding = 2
+    maxSegmentOfLanding = 6
+    delayBlinkingPlateform = 30
+    colorTextBonus = GameConfig.white
+    offsetTextBonus = 3
+    fontSizeBonus = 25
+    bonuses = [
+        4,
+        2,
+        0,
+        0,
+        0
+    ]
     minHeightPlateformLanding = GameConfig.windowH * 0.5
-    maxHeightPlateformLanding = GameConfig.windowH - 20
+    maxHeightPlateformLanding = GameConfig.windowH - segmentWidthPlateform - fontSizeBonus
+    minHeightMap = 150
+    maxHeightMap = GameConfig.windowH * 0.98
     height = GameConfig.windowH * 1
-    roughness = 1.1
+    roughness = 1.3
+    drawDebug = True

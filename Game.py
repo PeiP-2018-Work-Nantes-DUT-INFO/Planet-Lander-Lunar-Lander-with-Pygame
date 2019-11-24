@@ -2,8 +2,6 @@
 import pygame
 from GameConfig import GameConfig
 import landing
-import time
-from random import *
 
 
 
@@ -75,9 +73,9 @@ def gameloop(window, horloge):
                 if event.key == pygame.K_ESCAPE:
                     gameOver = True
         angle += nextAngle
+        land.landingEntities.update()
         land.landingEntities.draw(window)
         blitRotate(window, GameConfig.lander, pos, (w / 2, h / 2), angle)
-
         pygame.display.flip()
 
 
