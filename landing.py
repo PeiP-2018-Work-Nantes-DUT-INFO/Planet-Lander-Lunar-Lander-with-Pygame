@@ -160,7 +160,6 @@ class LandingStroke(pygame.sprite.Sprite):
             if LandingConfig.drawDebug:
                 self.draw_displacement_debug(start, end, vertical_displacement, segments)
 
-
         return segments
 
     def get_best_vertical_displacement(self, plateform, start, end):
@@ -195,7 +194,13 @@ class LandingStroke(pygame.sprite.Sprite):
                            8, 6)
         pygame.draw.circle(self.image, color, [int(end[0]), int(end[1])],
                            8, 6)
-        x_distance =
+        x_distance = segments[-1][0] - segments[-2][0]
+        img = font.render(str(x_distance), True, LandingConfig.colorTextBonus)
+        display_rect = img.get_rect()
+        middle = segments[-1][0]
+        display_rect.left = middle
+        display_rect.top = 0
+        self.image.blit(img, display_rect)
 
 
 class LandingConfig:
@@ -225,4 +230,4 @@ class LandingConfig:
     maxHeightMap = GameConfig.windowH * 0.98
     height = GameConfig.windowH * 1
     roughness = 1.3
-    drawDebug = True
+    drawDebug = False
