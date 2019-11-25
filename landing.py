@@ -66,28 +66,29 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
 class Landing:
     def __init__(self):
         self.landingEntities = pygame.sprite.Group()
-        self.plateforms = self.generatePlateforms(LandingConfig.numberOfPlateforms)
+        self.plateforms = Landing.generate_plateforms(LandingConfig.numberOfPlateforms)
         self.landingStroke = LandingStroke(self.plateforms)
         self.landingEntities.add(self.landingStroke)
         for plateform in self.plateforms:
             plateformSprite = LandingPlateform(plateform)
             self.landingEntities.add(plateformSprite)
 
-    def generatePlateforms(self, numberOfPlateforms):
+    @staticmethod
+    def generate_plateforms(number_of_plateforms):
         listPlateforms = []
-        for i in range(0, numberOfPlateforms):
-            numberOfSegments = randint(LandingConfig.minSegmentOfLanding,
-                                       LandingConfig.maxSegmentOfLanding)
-            plateformLength = numberOfSegments * LandingConfig.segmentPxLength
-            min = (i) * GameConfig.windowW / numberOfPlateforms
-            max = min + GameConfig.windowW / numberOfPlateforms - plateformLength
+        for i in range(0, number_of_plateforms):
+            number_of_segments = randint(LandingConfig.minSegmentOfLanding,
+                                         LandingConfig.maxSegmentOfLanding)
+            plateform_length = number_of_segments * LandingConfig.segmentPxLength
+            min = (i) * GameConfig.windowW / number_of_plateforms
+            max = min + GameConfig.windowW / number_of_plateforms - plateform_length
             xPos = randint(min + 1, max)
             yPos = randint(LandingConfig.minHeightPlateformLanding, LandingConfig.maxHeightPlateformLanding)
-            percentageDifficulty = (numberOfSegments - LandingConfig.minSegmentOfLanding) / (
+            percentageDifficulty = (number_of_segments - LandingConfig.minSegmentOfLanding) / (
                     LandingConfig.maxSegmentOfLanding - LandingConfig.minSegmentOfLanding)
             index = math.floor((len(LandingConfig.bonuses) - 1) * percentageDifficulty)
             bonus = LandingConfig.bonuses[index]
-            listPlateforms.append((xPos, yPos, plateformLength, bonus))
+            listPlateforms.append((xPos, yPos, plateform_length, bonus))
         return listPlateforms
 
 
@@ -123,11 +124,11 @@ class LandingPlateform(pygame.sprite.DirtySprite):
             middle = self.coords[2] / 2
             font = pygame.font.Font(None, LandingConfig.fontSizeBonus)
             img = font.render('x' + str(self.coords[3]), True, LandingConfig.colorTextBonus)
-            displayRect = img.get_rect()
-            displayRect.centerx = middle
-            displayRect.bottom = displayRect.height + LandingConfig.segmentWidthPlateform + \
-                                 LandingConfig.offsetTextBonus
-            self.image.blit(img, displayRect)
+            display_rect = img.get_rect()
+            display_rect.centerx = middle
+            display_rect.bottom = display_rect.height + LandingConfig.segmentWidthPlateform + \
+                                  LandingConfig.offsetTextBonus
+            self.image.blit(img, display_rect)
         self.delay += 1
 
 
@@ -136,57 +137,57 @@ class LandingStroke(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface([GameConfig.windowW, LandingConfig.height])
         self.plateforms = plateforms
-        self.segments = self.fillSegments(self.plateforms)
-        self.drawMap(self.image)
+        self.segments = self.fill_segments(self.plateforms)
+        self.draw_map(self.image)
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
 
-    def fillSegments(self, plateforms):
+    def fill_segments(self, plateforms):
         segments = []
-        plateformsCopy = plateforms.copy()
-        plateformsCopy.insert(0, [0, GameConfig.windowH / 2, 0])
-        plateformsCopy.append([GameConfig.windowW, GameConfig.windowH / 2, 0])
-        for i in range(0, len(plateformsCopy) - 1):
-            spaceBetweenPlateform = plateformsCopy[i + 1][0] - (plateformsCopy[i][0] + plateformsCopy[i][2])
-            numberOfSegments = math.ceil(
-                math.log(math.ceil(spaceBetweenPlateform / LandingConfig.lengthOfSegmentsBetweenPlateforms), 2))
-            start = [plateformsCopy[i][0] + plateformsCopy[i][2], plateformsCopy[i][1]]
-            end = [plateformsCopy[i + 1][0], plateformsCopy[i + 1][1]]
-            verticalDisplacement = self.getBestVerticalDisplacement(plateformsCopy[i], start, end)
+        plateforms_copy = plateforms.copy()
+        plateforms_copy.insert(0, [0, GameConfig.windowH / 2, 0])
+        plateforms_copy.append([GameConfig.windowW, GameConfig.windowH / 2, 0])
+        for i in range(0, len(plateforms_copy) - 1):
+            space_between_plateform = plateforms_copy[i + 1][0] - (plateforms_copy[i][0] + plateforms_copy[i][2])
+            number_of_segments = math.ceil(
+                math.log(math.ceil(space_between_plateform / LandingConfig.lengthOfSegmentsBetweenPlateforms), 2))
+            start = [plateforms_copy[i][0] + plateforms_copy[i][2], plateforms_copy[i][1]]
+            end = [plateforms_copy[i + 1][0], plateforms_copy[i + 1][1]]
+            vertical_displacement = self.get_best_vertical_displacement(plateforms_copy[i], start, end)
             if LandingConfig.drawDebug:
-                self.drawDisplacementDebug(start, end, verticalDisplacement)
+                self.draw_displacement_debug(start, end, vertical_displacement)
             segments.extend(midpoint_displacement(start, end, LandingConfig.roughness,
                                                   (LandingConfig.minHeightMap, LandingConfig.maxHeightMap),
-                                                  verticalDisplacement, num_of_iterations=numberOfSegments))
+                                                  vertical_displacement, num_of_iterations=number_of_segments))
 
         return segments
 
-    def getBestVerticalDisplacement(self, plateform, start, end):
+    def get_best_vertical_displacement(self, plateform, start, end):
         distance = math.fabs(start[0] - end[0])
         if distance > LandingConfig.minSizeBetweenPlateformDisplacementMode1:
-            return min(self.nearestEdgeDistanceY(plateform), (start[1] + end[1]) / 2)
+            return min(self.nearest_edge_distance_y(plateform), (start[1] + end[1]) / 2)
         else:
             return math.fabs(start[1] - end[1]) / 2
 
-    def nearestEdgeDistanceY(self, plateform):
+    def nearest_edge_distance_y(self, plateform):
         return min(math.fabs(LandingConfig.maxHeightMap - plateform[1]),
                    math.fabs(LandingConfig.minHeightMap - plateform[1]))
 
-    def drawMap(self, window):
+    def draw_map(self, window):
         for i in range(0, len(self.segments) - 1):
             pygame.draw.line(window, GameConfig.white, self.segments[i], self.segments[i + 1])
             if LandingConfig.drawDebug:
                 pygame.draw.circle(self.image, GameConfig.white, [int(self.segments[i][0]), int(self.segments[i][1])],
                                    4, 4)
 
-    def drawDisplacementDebug(self, start, end, verticalDisplacement):
+    def draw_displacement_debug(self, start, end, verticalDisplacement):
         font = pygame.font.Font(None, 20)
         img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextBonus)
-        displayRect = img.get_rect()
+        display_rect = img.get_rect()
         middle = (start[0] + end[0]) / 2
-        displayRect.centerx = middle
-        displayRect.top = 0
-        self.image.blit(img, displayRect)
+        display_rect.centerx = middle
+        display_rect.top = 0
+        self.image.blit(img, display_rect)
         pygame.draw.line(self.image, GameConfig.red, (middle, 0), (middle, GameConfig.windowH))
         color = [randint(0, 255), randint(0, 255), randint(0, 255)]
         pygame.draw.circle(self.image, color, [int(start[0]), int(start[1])],
@@ -222,4 +223,4 @@ class LandingConfig:
     maxHeightMap = GameConfig.windowH * 0.98
     height = GameConfig.windowH * 1
     roughness = 1.3
-    drawDebug = True
+    drawDebug = False
