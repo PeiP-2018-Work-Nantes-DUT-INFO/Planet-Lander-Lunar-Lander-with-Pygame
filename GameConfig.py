@@ -23,6 +23,3 @@ class GameConfig:
     hudRightTopRight = (windowW - 200, 30)
     fontSizeHud = 16
 
-    #Ajout d'une musique
-    # music = Sound()
-    # music.read('interstellar-main-theme-retro.mp3')

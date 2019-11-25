@@ -1,5 +1,6 @@
 # chargement des modules externes
 import pygame
+
 from GameConfig import GameConfig
 from landing import Landing
 from lander import Lander
@@ -95,8 +96,6 @@ def main():
     horloge = pygame.time.Clock()
     window = pygame.display.set_mode((GameConfig.windowW, GameConfig.windowH))
     pygame.display.set_caption("Planet Lander")
-
-
 
     gameloop(window, horloge)
     pygame.quit()

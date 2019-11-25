@@ -9,39 +9,41 @@ import math
 def midpoint_displacement(start, end, roughness, limit, vertical_displacement=None,
                           num_of_iterations=16):
     """
-    Given a straight line segment specified by a starting point and an endpoint
-    in the form of [starting_point_x, starting_point_y] and [endpoint_x, endpoint_y],
-    a roughness value > 0, an initial vertical displacement and a number of
-    iterations > 0 applies the  midpoint algorithm to the specified segment and
-    returns the obtained list of points in the form
-    points = [[x_0, y_0],[x_1, y_1],...,[x_n, y_n]]
+    Étant donné un segment de ligne droite spécifié par un point de départ et un point d'arrivée
+    sous la forme de[point_de_départ_x, point_de_départ_y] et[point_de_terminaison_x, point_de_terminaison_y],
+    une valeur de rugosité > 0, un déplacement vertical initial et un nombre de
+    itérations > 0 applique l'algorithme du point médian au segment spécifié et
+    retourne la liste de points obtenue sous la forme
+    points = [[x_0, y_0],[x_1, y_1],...,[x_n, y_n]]].
+
     """
-    # Final number of points = (2^iterations)+1
+    # Nombre final de points = (2^iterations)+1
     if vertical_displacement is None:
-        # if no initial displacement is specified set displacement to:
+        #  si aucun déplacement initial n'est spécifié, régler le déplacement sur :
         #  (y_start+y_end)/2
         vertical_displacement = (start[1] + end[1]) / 2
-    # Data structure that stores the points is a list of lists where
-    # each sublist represents a point and holds its x and y coordinates:
-    # points=[[x_0, y_0],[x_1, y_1],...,[x_n, y_n]]
-    #              |          |              |
-    #           point 0    point 1        point n
-    # The points list is always kept sorted from smallest to biggest x-value
+    # La structure de données qui stocke les points est une liste de listes où
+    #      chaque sous-liste représente un point et contient ses coordonnées x et y :
+    #      points=[[x_0, y_0],[x_1, y_1],...,[x_n, y_n]]]
+    #                  |           |               |
+    #              point 0      point 1         point n
+    #      La liste des points est toujours triée de la plus petite à la plus grande valeur x.
     points = [start, end]
     iteration = 1
     while iteration <= num_of_iterations:
-        # Since the list of points will be dynamically updated with the new computed
-        # points after each midpoint displacement it is necessary to create a copy
-        # of the state at the beginning of the iteration so we can iterate over
-        # the original sequence.
-        # Tuple type is used for security reasons since they are immutable in Python.
+        # Comme la liste des points sera mise à jour dynamiquement avec la nouvelle valeur calculée de
+        # Nombre de points après chaque déplacement du point médian, il est nécessaire de créer une copie.
+        # de l'état au début de l'itération pour qu'on puisse répéter l'itération sur
+        # la séquence originale.
+        # Le type Tuple est utilisé pour des raisons de sécurité car ils sont immuables en Python.
+
         points_tup = tuple(points)
         for i in range(len(points_tup) - 1):
-            # Calculate x and y midpoint coordinates:
+            # Calculez les coordonnées des points médians x et y :
             # [(x_i+x_(i+1))/2, (y_i+y_(i+1))/2]
             midpoint = list(map(lambda x: (points_tup[i][x] + points_tup[i + 1][x]) / 2,
                                 [0, 1]))
-            # Displace midpoint y-coordinate
+            # Déplacer le point médian de la coordonnée y
             goingUpDisplacement = -vertical_displacement
             goingDownDisplacement = vertical_displacement
             if midpoint[1] + goingUpDisplacement < limit[0]:
@@ -50,19 +52,24 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
                 goingDownDisplacement = limit[1] - midpoint[1]
             midpoint[1] += choice([goingUpDisplacement,
                                    goingDownDisplacement])
-            # Insert the displaced midpoint in the current list of points
+            # Insérer le point médian déplacé dans la liste de points courante
             bisect.insort(points, midpoint)
-            # bisect allows to insert an element in a list so that its order
-            # is preserved.
-            # By default the maintained order is from smallest to biggest list first
-            # element which is what we want.
-        # Reduce displacement range
+            #  bisect permet d'insérer un élément dans une liste de façon à ce que son ordre
+            #  est préservé.
+            #  Par défaut, l'ordre maintenu va de la plus petite à la plus grande liste en premier.
+            #  élément qui est ce que nous voulons.
+        # Réduire la plage de déplacement
         vertical_displacement *= 2 ** (-roughness)
-        # update number of iterations
+        # mise à jour du nombre d'itérations
         iteration += 1
     return points
 
 
+''' class Landing 
+    Usage :
+        - Placement des zones d'attérissages 
+        - Regroupement des fonctions de dessin de la carte    
+'''
 class Landing:
     def __init__(self):
         self.landingEntities = pygame.sprite.Group()
@@ -73,6 +80,12 @@ class Landing:
             plateformSprite = LandingPlateform(plateform)
             self.landingEntities.add(plateformSprite)
 
+    ''' function generate_plateforms
+        Usage : 
+            - génère les plateformes sur lesquels le vaisseau se pose
+        Arguments :
+            - number_of_plateforms : nombre de plateformes qui seront placées dans la zone de jeux    
+    '''
     @staticmethod
     def generate_plateforms(number_of_plateforms):
         listPlateforms = []
@@ -92,6 +105,11 @@ class Landing:
         return listPlateforms
 
 
+''' class Landing 
+    Usage :
+        - Placement des zones d'attérissages 
+        - Dessin de la géographie de la planete     
+'''
 class LandingPlateform(pygame.sprite.DirtySprite):
     def __init__(self, plateformCoords):
         pygame.sprite.Sprite.__init__(self)
@@ -132,6 +150,11 @@ class LandingPlateform(pygame.sprite.DirtySprite):
         self.delay += 1
 
 
+''' class Landing 
+    Usage :
+        - Fais les calculs nécéssaires à la randominsation de la map
+        - S'assure de la cohérence de la géographie de la map
+'''
 class LandingStroke(pygame.sprite.Sprite):
     def __init__(self, plateforms):
         pygame.sprite.Sprite.__init__(self)
@@ -142,6 +165,14 @@ class LandingStroke(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
 
+    ''' function fill_segments 
+        Usage : 
+            - Donne la valeur des plateforme (multiplicateur de points)
+            - Fait clignoter les plateformes et les bonus
+        Arguments : 
+            - self : objet courant
+            - plateforms : la plateforme données en paramètre 
+    '''
     def fill_segments(self, plateforms):
         segments = []
         plateforms_copy = plateforms.copy()
@@ -162,6 +193,15 @@ class LandingStroke(pygame.sprite.Sprite):
 
         return segments
 
+    ''' function get_best_vertical_displacement 
+        Usage : 
+            - Calcul du déplcement vertical d'un point médian entre deux point déjà présent 
+        Arguments : 
+            - self : objet courant 
+            - plateform : !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            - start : début du segment 
+            - end : fin du segment 
+    '''
     def get_best_vertical_displacement(self, plateform, start, end):
         distance = math.fabs(start[0] - end[0])
         if distance > LandingConfig.minSizeBetweenPlateformDisplacementMode1:

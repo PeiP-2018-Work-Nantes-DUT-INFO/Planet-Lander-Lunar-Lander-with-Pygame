@@ -25,7 +25,7 @@ class Lander(pygame.sprite.DirtySprite):
         Usage : 
             - Appel des différentes fonction de mise à jour. 
         Argument : 
-            - self : classe courante
+            - self : classe courant
     '''
     def update(self):
         self.update_physic(0 + self.forceAcceleration[0], LanderConfig.gravity * self.m + self.forceAcceleration[1])
@@ -54,7 +54,7 @@ class Lander(pygame.sprite.DirtySprite):
         Usage : 
             - Met à jour l'image grâce à la nouvelle orientation
         Arguments : 
-            - self : classe courante   
+            - self : objet courante  
     '''
     def update_image(self):
         center = self.rect.center
@@ -66,7 +66,7 @@ class Lander(pygame.sprite.DirtySprite):
             - Conditions de défaite (absence de carbarant) 
             - On créé le vecteur liée à la propulsion du vaisseau
         Arguments : 
-            - self : classe courante
+            - self : objet courant
     '''
     def boost(self):
         if not self.fuel:
@@ -79,7 +79,7 @@ class Lander(pygame.sprite.DirtySprite):
         Usage : 
             - permet la rotation du vaisseau
         Arguments : 
-            - self : classe courante
+            - self : objet courant 
             - angle : angle de rotation pour le vaisseau   
     '''
     def rotate(self, angle):
