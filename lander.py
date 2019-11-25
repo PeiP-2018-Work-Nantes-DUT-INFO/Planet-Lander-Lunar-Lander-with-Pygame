@@ -1,50 +1,56 @@
-# Modules externes
 import pygame
+import math
+from GameConfig import GameConfig
 
 
-# Classes
-class Gameconfig :
-    white = (255, 255, 255)
-
-    windowH = 1300
-    windowW = 700
-
-    imgLander = pygame.image.load('585f9635cb11b227491c3589.png')
-    landerH = 50
-    landerW = 50
-
-
-class GameState:
+class Lander(pygame.sprite.DirtySprite):
     def __init__(self):
-        self.landerModuleX = 100
-        self.landerModuleY = 100
+        super(pygame.sprite.DirtySprite, self).__init__()
+        self.image = pygame.image.load('lander_normal.png')
+        self.original = self.image
+        self.rect = self.image.get_rect()
+        self.rect.center = (0, 20)
+        self.x = self.rect.center[0]
+        self.y = self.rect.center[1]
+        self.vx = LanderConfig.initialVelocityX
+        self.vy = LanderConfig.initialVelocityY
+        self.m = 5
+        self.orientation = -90.0
+        self.fuel = 100
+        self.engine_power = 0.000000001622
 
-    def draw(self, window):
-        window.blit(Gameconfig.imgLander, (self.landerModuleX, self.landerModuleY))
+    def update_physic(self, fx, fy):
+        ax = fx / self.m
+        ay = fy / self.m
+        self.vx = self.vx + ax * LanderConfig.dt
+        self.vy = self.vy + ay * LanderConfig.dt
+        self.x = self.x + self.vx * LanderConfig.dt
+        self.y = self.y + self.vy * LanderConfig.dt
 
-# Fonctions
+    def boost(self):
+        if not self.fuel: return
+        self.fuel -= 1
+        print(self.orientation)
+        fx = self.engine_power + math.sin(math.radians(self.orientation))
+        fy = self.engine_power + math.cos(math.radians(self.orientation))
+        self.update_physic(fx, fy)
+
+    def update_image(self):
+        center = self.rect.center
+        self.image = pygame.transform.rotate(self.original, -1 * self.orientation)
+        self.rect = self.image.get_rect(center=center)
+
+    def update(self):
+        self.update_physic(0, LanderConfig.gravity * self.m)
+        self.rect.center = (self.x, self.y)
+        self.update_image()
+
+    def rotate(self, angle):
+        self.orientation += angle
 
 
-def gameLoop(window) : #Boucle de jeu
-    game_over = False
-    gameState = GameState()
-
-    while not game_over:
-        gameState.draw(window)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-        pygame.display.update()
-
-def main(): #Fonction principale
-    pygame.init()
-    window = pygame.display.set_mode((Gameconfig.windowH, Gameconfig.windowW))
-    pygame.display.set_caption("Planet Lander")
-
-    gameLoop(window)
-    pygame.quit()
-    quit()
-
-
-#Execution fonction principale
-main()
+class LanderConfig:
+    dt = 4
+    gravity = 0.0001622
+    initialVelocityX = 0.5
+    initialVelocityY = 0.0
