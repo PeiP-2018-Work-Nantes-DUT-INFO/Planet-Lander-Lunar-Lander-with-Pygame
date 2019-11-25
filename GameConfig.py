@@ -13,3 +13,6 @@ class GameConfig:
     imgLanderH = 30
     white = (255, 255, 255)
     red = (255, 0, 0)
+    hudLeftTopLeft = (30, 30)
+    hudRightTopRight = (windowW - 200, 30)
+    fontSizeHud = 20

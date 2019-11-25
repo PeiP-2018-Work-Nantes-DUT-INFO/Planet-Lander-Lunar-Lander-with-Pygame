@@ -12,6 +12,24 @@ class Move:
     TurnRight = 2
 
 
+def drawHUD(window, lander, score):
+    offset = 0
+    for i in [('SCORE : {0:04d}', score), ('FUEL : {0:03d}', lander.fuel)]:
+        font = pygame.font.Font(None, GameConfig.fontSizeHud)
+        img = font.render(i[0].format(i[1]), True, GameConfig.white)
+        display_rect = img.get_rect()
+        display_rect.topleft = (GameConfig.hudLeftTopLeft[0], GameConfig.hudLeftTopLeft[1] + offset)
+        window.blit(img, display_rect)
+        offset += GameConfig.fontSizeHud
+    offset = 0
+    for i in [('ALTITUDE : {0:04.0f}', GameConfig.windowH - lander.y), ('HORIZONTAL SPEED: {0:.0f}', lander.vx,),
+              ('VERTICAL SPEED: {0:.0f}', lander.vy)]:
+        font = pygame.font.Font(None, GameConfig.fontSizeHud)
+        img = font.render(i[0].format(i[1]), True, GameConfig.white)
+        display_rect = img.get_rect()
+        display_rect.topleft = (GameConfig.hudRightTopRight[0], GameConfig.hudRightTopRight[1] + offset)
+        window.blit(img, display_rect)
+        offset += GameConfig.fontSizeHud
 
 
 def gameloop(window, horloge):
@@ -32,6 +50,8 @@ def gameloop(window, horloge):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     gameOver = True
+                if event.key == pygame.K_UP:
+                    print("BOOOST")
         if keys[pygame.K_LEFT]:
             aircraft.rotate(Move.TurnLeft)
         elif keys[pygame.K_RIGHT]:
@@ -43,6 +63,7 @@ def gameloop(window, horloge):
         land.landingEntities.draw(window)
         aircraft_team.update()
         aircraft_team.draw(window)
+        drawHUD(window, aircraft, 0)
         pygame.display.flip()
 
 
