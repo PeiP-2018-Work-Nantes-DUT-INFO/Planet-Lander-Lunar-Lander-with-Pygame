@@ -27,7 +27,6 @@ class Lander(pygame.sprite.DirtySprite):
         Argument : 
             - self : classe courante
     '''
-
     def update(self):
         self.update_physic(0 + self.forceAcceleration[0], LanderConfig.gravity * self.m + self.forceAcceleration[1])
         self.forceAcceleration = [0, 0]
@@ -43,7 +42,6 @@ class Lander(pygame.sprite.DirtySprite):
         - fx : force sur l'axe des absisses 
         - fy : force sur l'axe des ordonnées
     '''
-
     def update_physic(self, fx, fy):
         ax = fx / self.m
         ay = fy / self.m
@@ -58,7 +56,6 @@ class Lander(pygame.sprite.DirtySprite):
         Arguments : 
             - self : classe courante   
     '''
-
     def update_image(self):
         center = self.rect.center
         self.image = pygame.transform.rotate(self.original, -1 * self.orientation)
@@ -71,7 +68,6 @@ class Lander(pygame.sprite.DirtySprite):
         Arguments : 
             - self : classe courante
     '''
-
     def boost(self):
         if not self.fuel:
             return
@@ -86,14 +82,13 @@ class Lander(pygame.sprite.DirtySprite):
             - self : classe courante
             - angle : angle de rotation pour le vaisseau   
     '''
-
     def rotate(self, angle):
         self.orientation += angle
 
 
 class LanderConfig:
     dt = 0.02
-    gravity = 1.622
+    gravity = 3.244  # 1.622 * 2
 
     initialVelocityX = 50
     initialVelocityY = 0.0

@@ -10,7 +10,7 @@ class Vecteur:
         self.x = x
         self.y = y
 
-        if angle is not None and norme is not None:  # Dans le cas ou le vaisseau est déjà soumis à un vecteur de force.
+        if angle is not None and norme is not None:
             self.x = norme + math.sin(math.radians(angle))
             self.y = norme + math.cos(math.radians(angle))
 

@@ -181,7 +181,7 @@ class LandingStroke(pygame.sprite.Sprite):
                                    4, 4)
 
     def draw_displacement_debug(self, start, end, verticalDisplacement, segments):
-        font = pygame.font.Font(None, 20)
+        font = pygame.font.Font('Bender_Light.otf', 20)
         img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextBonus)
         display_rect = img.get_rect()
         middle = (start[0] + end[0]) / 2
