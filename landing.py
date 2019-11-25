@@ -150,15 +150,16 @@ class LandingStroke(pygame.sprite.Sprite):
         for i in range(0, len(plateforms_copy) - 1):
             space_between_plateform = plateforms_copy[i + 1][0] - (plateforms_copy[i][0] + plateforms_copy[i][2])
             number_of_segments = math.ceil(
-                math.log(math.ceil(space_between_plateform / LandingConfig.lengthOfSegmentsBetweenPlateforms), 2))
+                math.log(math.ceil(space_between_plateform / LandingConfig.lengthOfSegmentsXBetweenPlateforms), 2))
             start = [plateforms_copy[i][0] + plateforms_copy[i][2], plateforms_copy[i][1]]
             end = [plateforms_copy[i + 1][0], plateforms_copy[i + 1][1]]
             vertical_displacement = self.get_best_vertical_displacement(plateforms_copy[i], start, end)
-            if LandingConfig.drawDebug:
-                self.draw_displacement_debug(start, end, vertical_displacement)
             segments.extend(midpoint_displacement(start, end, LandingConfig.roughness,
                                                   (LandingConfig.minHeightMap, LandingConfig.maxHeightMap),
                                                   vertical_displacement, num_of_iterations=number_of_segments))
+            if LandingConfig.drawDebug:
+                self.draw_displacement_debug(start, end, vertical_displacement, segments)
+
 
         return segments
 
@@ -180,7 +181,7 @@ class LandingStroke(pygame.sprite.Sprite):
                 pygame.draw.circle(self.image, GameConfig.white, [int(self.segments[i][0]), int(self.segments[i][1])],
                                    4, 4)
 
-    def draw_displacement_debug(self, start, end, verticalDisplacement):
+    def draw_displacement_debug(self, start, end, verticalDisplacement, segments):
         font = pygame.font.Font(None, 20)
         img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextBonus)
         display_rect = img.get_rect()
@@ -194,13 +195,14 @@ class LandingStroke(pygame.sprite.Sprite):
                            8, 6)
         pygame.draw.circle(self.image, color, [int(end[0]), int(end[1])],
                            8, 6)
+        x_distance =
 
 
 class LandingConfig:
     numberOfPlateforms = 5
     segmentPxLength = 15
     minSizeBetweenPlateformDisplacementMode1 = 100
-    lengthOfSegmentsBetweenPlateforms = 10
+    lengthOfSegmentsXBetweenPlateforms = 10
     colorPlateform = GameConfig.white
     segmentWidth = 1
     segmentWidthPlateform = 8
@@ -223,4 +225,4 @@ class LandingConfig:
     maxHeightMap = GameConfig.windowH * 0.98
     height = GameConfig.windowH * 1
     roughness = 1.3
-    drawDebug = False
+    drawDebug = True

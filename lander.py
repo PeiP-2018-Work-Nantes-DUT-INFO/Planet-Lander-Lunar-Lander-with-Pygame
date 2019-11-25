@@ -7,6 +7,7 @@ class Lander(pygame.sprite.DirtySprite):
     def __init__(self):
         super(pygame.sprite.DirtySprite, self).__init__()
         self.image = pygame.image.load('lander_normal.png')
+        self.image = pygame.transform.rotate(self.image,-90)
         self.original = self.image
         self.rect = self.image.get_rect()
         self.rect.center = (0, 20)
@@ -17,7 +18,8 @@ class Lander(pygame.sprite.DirtySprite):
         self.m = 5
         self.orientation = -90.0
         self.fuel = 100
-        self.engine_power = 0.000000001622
+        self.engine_power = 166.22*self.m
+        # self.engine_power = 0.000000001622
 
     def update_physic(self, fx, fy):
         ax = fx / self.m
@@ -29,10 +31,11 @@ class Lander(pygame.sprite.DirtySprite):
 
     def boost(self):
         if not self.fuel: return
-        self.fuel -= 1
-        print(self.orientation)
-        fx = self.engine_power + math.sin(math.radians(self.orientation))
-        fy = self.engine_power + math.cos(math.radians(self.orientation))
+        # self.fuel -= 1
+        print(math.radians(self.orientation))
+        fx = self.engine_power * math.cos(math.radians(self.orientation))
+        fy = self.engine_power * math.sin(math.radians(self.orientation))
+        print(fx,fy)
         self.update_physic(fx, fy)
 
     def update_image(self):
@@ -50,7 +53,9 @@ class Lander(pygame.sprite.DirtySprite):
 
 
 class LanderConfig:
-    dt = 4
-    gravity = 0.0001622
-    initialVelocityX = 0.5
+    dt = 0.01
+    # gravity = 16.22
+    gravity = 0
+
+    initialVelocityX = 50
     initialVelocityY = 0.0
