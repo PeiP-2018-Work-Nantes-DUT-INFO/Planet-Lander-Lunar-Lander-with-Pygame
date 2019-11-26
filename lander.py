@@ -1,6 +1,5 @@
 import pygame
 import math
-from GameConfig import GameConfig
 
 
 class Lander(pygame.sprite.DirtySprite):
@@ -9,17 +8,23 @@ class Lander(pygame.sprite.DirtySprite):
         self.image = pygame.image.load('lander_normal.png')
         self.image = pygame.transform.rotate(self.image, -90)
         self.original = self.image
+
         self.rect = self.image.get_rect()
         self.rect.center = (0, 20)
+
         self.x = self.rect.center[0]
         self.y = self.rect.center[1]
         self.vx = LanderConfig.initialVelocityX
         self.vy = LanderConfig.initialVelocityY
+
         self.m = 5
-        self.orientation = -180.0
-        self.fuel = 1000
         self.engine_power = 16.22 * self.m
         self.forceAcceleration = [0, 0]
+
+        self.orientation = -180.0
+        self.fuel = 1000
+        self.landed = False
+        self.landed_succes = False
 
     ''' function update
         Usage : 
@@ -84,6 +89,36 @@ class Lander(pygame.sprite.DirtySprite):
     '''
     def rotate(self, angle):
         self.orientation += angle
+
+    ''' function check_landed : 
+        Usage : 
+            - 
+        Arguments : 
+            - self : objet courant 
+            - surface : 
+    '''
+    def check_landed(self, window):
+        if self.landed:
+            return
+        collision = pygame.sprite.collide_circle(self, window)
+        if collision:
+            self.landed = True
+            if self.land_succefuly():  # && window.
+                self.landed_succes = True
+            else:
+                self.landed_succes = False
+        self.vx = 0
+        self.vy = 0
+        self.forceAcceleration = [0, 0]
+
+    ''' function land_succefuly : 
+            Usage : 
+                - 
+            Arguments : 
+                - self : objet courant 
+    '''
+    def land_succefuly(self):
+        return (self.orientation <10 or self.orientation > 350) and self.vy < 20
 
 
 class LanderConfig:
