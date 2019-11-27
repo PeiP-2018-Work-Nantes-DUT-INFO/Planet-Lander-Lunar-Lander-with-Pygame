@@ -10,9 +10,9 @@ class Lander(pygame.sprite.DirtySprite):
         self.image = GameConfig.LANDER_IMG
         self.image = pygame.transform.rotate(self.image, -90)
         self.original = self.image
-
+        self.score = 0
         self.rect = self.image.get_rect()
-        self.rect.center = (0, 20)
+        self.rect.center = (15, 20)
 
         self.x = self.rect.center[0]
         self.y = self.rect.center[1]
@@ -28,6 +28,7 @@ class Lander(pygame.sprite.DirtySprite):
         self.landed = False
         self.landed_in_grace = False
         self.explodeDelay = 0
+        self.finished_animation = False
 
     ''' function update
         Usage : 
@@ -97,9 +98,11 @@ class Lander(pygame.sprite.DirtySprite):
     '''
 
     def rotate(self, angle):
+        if self.landed:
+            return
         self.orientation += angle
 
-    ''' function land_succefuly : 
+    ''' function landing_in_grace : 
             Usage : 
                 - 
             Arguments : 
@@ -107,7 +110,8 @@ class Lander(pygame.sprite.DirtySprite):
     '''
 
     def landing_in_grace(self):
-        return (-100 < self.orientation < -80) and math.fabs(self.vx) < 20
+        return (-100 < self.orientation < -80) and math.fabs(self.vy) < LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING \
+               and math.fabs(self.vx) < LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING
 
     ''' function check_landed : 
         Usage : 
@@ -122,7 +126,12 @@ class Lander(pygame.sprite.DirtySprite):
             return
         collision = pygame.sprite.spritecollide(self, landing_group, False, collided=pygame.sprite.collide_mask)
         if collision:
-            self.landed_in_grace = self.landing_in_grace()
+            plateforms = [plateform for plateform in collision if plateform.type == 1]
+
+            if self.landing_in_grace() and len(plateforms) > 0:
+                self.landed_in_grace = True
+                plateform_coords = plateforms.pop().coords
+                self.score = self.compute_score(plateform_coords)
             self.landed = True
             self.vx = 0
             self.vy = 0
@@ -131,6 +140,7 @@ class Lander(pygame.sprite.DirtySprite):
     def explode(self, screen):
         if self.explodeDelay >= LanderConfig.explodeDuration:
             self.kill()
+            self.finished_animation = True
             return
         for i in range(randint(20, 40)):
             pygame.draw.line(screen,
@@ -141,7 +151,21 @@ class Lander(pygame.sprite.DirtySprite):
                              (randint(0, GameConfig.WINDOW_W),
                               randint(0, GameConfig.WINDOW_H)),
                              randint(1, 3))
-        self.explodeDelay+=1
+        self.explodeDelay += 1
+
+    def compute_score(self, plateform):
+        """
+        Score multiplier *
+        ([40000 * (Percentage of fuel remaining - 50%)] +
+        [30000 * (|Vertical velocity| / Maximum vertical velocity for a safe landing)^2] +
+        [30000 * (|horizontal velocity| / Maximum horizontal velocity for a safe landing)^2])
+        :param plateform:
+        :return:
+        """
+        bonusFuel = max(self.fuel / LanderConfig.INITIAL_FUEL - 0.5, 0.0)
+        return round(plateform[3] * ((40000 * bonusFuel) +
+                                     (30000 * (self.vy / LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING)) +
+                                     (30000 * (self.vx / LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING))))
 
 
 class LanderConfig:
@@ -150,5 +174,7 @@ class LanderConfig:
 
     initialVelocityX = 50
     initialVelocityY = 0.0
-    explodeDuration = 100
+    explodeDuration = 150
     INITIAL_FUEL = 1000
+    MAX_VELOCITY_HORIZONTAL_SAFE_LANDING = 10
+    MAX_VELOCITY_VERTICAL_SAFE_LANDING = 20

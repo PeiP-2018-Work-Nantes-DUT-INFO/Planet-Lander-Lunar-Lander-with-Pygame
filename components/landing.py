@@ -121,6 +121,7 @@ class LandingPlateform(pygame.sprite.DirtySprite):
         pygame.sprite.Sprite.__init__(self)
         self.dirty = 2
         self.delay = 0
+        self.type = 1
         self.highLight = False
         self.coords = plateformCoords
         self.image = pygame.Surface(
@@ -167,6 +168,7 @@ class LandingPlateform(pygame.sprite.DirtySprite):
 class LandingStroke(pygame.sprite.Sprite):
     def __init__(self, plateforms):
         pygame.sprite.Sprite.__init__(self)
+        self.type = 2
         self.image = pygame.Surface([GameConfig.WINDOW_W, LandingConfig.height], pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.rect.topleft = (0, 0)
@@ -174,7 +176,7 @@ class LandingStroke(pygame.sprite.Sprite):
         self.segments = self.fill_segments(self.plateforms)
         self.draw_map(self.image)
         self.mask = pygame.mask.from_surface(self.image, 0)
-
+        self.set_mask_edges()
     ''' function fill_segments 
         Usage : 
             - Donne la valeur des plateforme (multiplicateur de points)
@@ -183,6 +185,14 @@ class LandingStroke(pygame.sprite.Sprite):
             - self : objet courant
             - plateforms : la plateforme données en paramètre 
     '''
+
+    def set_mask_edges(self):
+        for i in range(0, GameConfig.WINDOW_W):
+            self.mask.set_at((i, 0), 1)
+            self.mask.set_at((i, GameConfig.WINDOW_H - 1), 1)
+        for i in range(1, GameConfig.WINDOW_H):
+            self.mask.set_at((0, i), 1)
+            self.mask.set_at((GameConfig.WINDOW_W - 1, i), 1)
 
     def fill_segments(self, plateforms):
         segments = []
