@@ -124,7 +124,8 @@ class LandingPlateform(pygame.sprite.DirtySprite):
         self.highLight = False
         self.coords = plateformCoords
         self.image = pygame.Surface(
-            [plateformCoords[2], LandingConfig.segmentWidthPlateform + LandingConfig.fontSizeBonus], pygame.SRCALPHA)
+            [plateformCoords[2], LandingConfig.segmentWidthPlateform + LandingConfig.fontSizeScoreMultiplayer],
+            pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.coords[0], self.coords[1])
         self.draw()
@@ -136,7 +137,7 @@ class LandingPlateform(pygame.sprite.DirtySprite):
                           0), LandingConfig.segmentWidthPlateform)
 
     def update(self):
-        if self.coords[3] == 0:
+        if self.coords[3] == 1:
             return
         if self.delay > LandingConfig.delayBlinkingPlateform:
             self.image.fill((255, 255, 255, 0))
@@ -146,12 +147,12 @@ class LandingPlateform(pygame.sprite.DirtySprite):
             self.dirty = 1
         if self.highLight:
             middle = self.coords[2] / 2
-            font = pygame.font.Font(None, LandingConfig.fontSizeBonus)
-            img = font.render('x' + str(self.coords[3]), True, LandingConfig.colorTextBonus)
+            font = pygame.font.Font(None, LandingConfig.fontSizeScoreMultiplayer)
+            img = font.render('x' + str(self.coords[3]), True, LandingConfig.colorTextScoreBonus)
             display_rect = img.get_rect()
             display_rect.centerx = middle
             display_rect.bottom = display_rect.height + LandingConfig.segmentWidthPlateform + \
-                                  LandingConfig.offsetTextBonus
+                                  LandingConfig.offsetTextScoreMultiplayer
             self.image.blit(img, display_rect)
         self.delay += 1
 
@@ -233,7 +234,7 @@ class LandingStroke(pygame.sprite.Sprite):
 
     def draw_displacement_debug(self, start, end, verticalDisplacement, segments):
         font = pygame.font.Font(path.join('Ressources', 'Bender_Light.otf'), 20)
-        img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextBonus)
+        img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextScoreBonus)
         display_rect = img.get_rect()
         middle = (start[0] + end[0]) / 2
         display_rect.centerx = middle
@@ -246,7 +247,7 @@ class LandingStroke(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, color, [int(end[0]), int(end[1])],
                            8, 6)
         x_distance = segments[-1][0] - segments[-2][0]
-        img = font.render(str(x_distance), True, LandingConfig.colorTextBonus)
+        img = font.render(str(x_distance), True, LandingConfig.colorTextScoreBonus)
         display_rect = img.get_rect()
         middle = segments[-1][0]
         display_rect.left = middle
@@ -265,18 +266,18 @@ class LandingConfig:
     minSegmentOfLanding = 2
     maxSegmentOfLanding = 6
     delayBlinkingPlateform = 30
-    colorTextBonus = GameConfig.white
-    offsetTextBonus = 3
-    fontSizeBonus = 25
+    colorTextScoreBonus = GameConfig.white
+    offsetTextScoreMultiplayer = 3
+    fontSizeScoreMultiplayer = 25
     bonuses = [
         4,
         2,
-        0,
-        0,
-        0
+        1,
+        1,
+        1
     ]
     minHeightPlateformLanding = GameConfig.windowH * 0.5
-    maxHeightPlateformLanding = GameConfig.windowH - segmentWidthPlateform - fontSizeBonus
+    maxHeightPlateformLanding = GameConfig.windowH - segmentWidthPlateform - fontSizeScoreMultiplayer
     minHeightMap = 150
     maxHeightMap = GameConfig.windowH * 0.98
     height = GameConfig.windowH * 1
