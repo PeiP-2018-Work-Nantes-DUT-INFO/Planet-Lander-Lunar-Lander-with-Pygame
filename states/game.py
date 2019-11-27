@@ -1,9 +1,9 @@
 # chargement des modules externes
 import pygame
 
-from GameConfig import GameConfig
-from Components.landing import Landing
-from Components.lander import Lander
+from game_config import GameConfig
+from components.landing import Landing
+from components.lander import Lander
 from os import path
 
 
@@ -28,23 +28,23 @@ class Move:
         - score : score de la partie
 '''
 def drawHUD(window, lander, score):
-    font = pygame.font.Font(path.join('Ressources', 'Bender_Light.otf'), GameConfig.fontSizeHud)
+    font = pygame.font.Font(path.join('Ressources', 'Bender_Light.otf'), GameConfig.FONTSIZE_HUD)
     offset = 0
 
     for i in [('SCORE : {0:04d}', score), ('FUEL : {0:03d}', lander.fuel)]:
-        img = font.render(i[0].format(i[1]), True, GameConfig.white)
+        img = font.render(i[0].format(i[1]), True, GameConfig.WHITE)
         display_rect = img.get_rect()
-        display_rect.topleft = (GameConfig.hudLeftTopLeft[0], GameConfig.hudLeftTopLeft[1] + offset)
+        display_rect.topleft = (GameConfig.HUDLEFT_TOP_LEFT[0], GameConfig.HUDLEFT_TOP_LEFT[1] + offset)
         window.blit(img, display_rect)
-        offset += GameConfig.fontSizeHud
+        offset += GameConfig.FONTSIZE_HUD
     offset = 0
-    for i in [('ALTITUDE : {0:04.0f}', GameConfig.windowH - lander.y), ('HORIZONTAL SPEED: {0:.0f}', lander.vx,),
+    for i in [('ALTITUDE : {0:04.0f}', GameConfig.WINDOW_H - lander.y), ('HORIZONTAL SPEED: {0:.0f}', lander.vx,),
               ('VERTICAL SPEED: {0:.0f}', lander.vy)]:
-        img = font.render(i[0].format(i[1]), True, GameConfig.white)
+        img = font.render(i[0].format(i[1]), True, GameConfig.WHITE)
         display_rect = img.get_rect()
-        display_rect.topleft = (GameConfig.hudRightTopRight[0], GameConfig.hudRightTopRight[1] + offset)
+        display_rect.topleft = (GameConfig.HUD_RIGHT_TOPLEFT[0], GameConfig.HUD_RIGHT_TOPLEFT[1] + offset)
         window.blit(img, display_rect)
-        offset += GameConfig.fontSizeHud
+        offset += GameConfig.FONTSIZE_HUD
 
 
 ''' function gameloop
@@ -64,7 +64,7 @@ def gameloop(window, horloge):
     while not game_over:
         horloge.tick(60)
 
-        window.fill(0)
+        window.fill(GameConfig.BACKGROUND_COLOR)
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -98,7 +98,7 @@ def gameloop(window, horloge):
 def main():
     pygame.init()
     horloge = pygame.time.Clock()
-    window = pygame.display.set_mode((GameConfig.windowW, GameConfig.windowH))
+    window = pygame.display.set_mode((GameConfig.WINDOW_W, GameConfig.WINDOW_H))
     pygame.display.set_caption("Planet Lander")
 
     gameloop(window, horloge)

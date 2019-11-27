@@ -1,13 +1,13 @@
 import pygame
 import math
 from random import randint
-from GameConfig import GameConfig
+from game_config import GameConfig
 
 
 class Lander(pygame.sprite.DirtySprite):
     def __init__(self):
         super(pygame.sprite.DirtySprite, self).__init__()
-        self.image = GameConfig.lander
+        self.image = GameConfig.LANDER_IMG
         self.image = pygame.transform.rotate(self.image, -90)
         self.original = self.image
 
@@ -138,8 +138,8 @@ class Lander(pygame.sprite.DirtySprite):
                               randint(0, 100),
                               randint(0, 100)),
                              self.rect.center,
-                             (randint(0, GameConfig.windowW),
-                              randint(0, GameConfig.windowH)),
+                             (randint(0, GameConfig.WINDOW_W),
+                              randint(0, GameConfig.WINDOW_H)),
                              randint(1, 3))
         self.explodeDelay+=1
 
