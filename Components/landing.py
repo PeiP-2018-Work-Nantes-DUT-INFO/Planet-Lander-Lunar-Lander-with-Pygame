@@ -70,6 +70,8 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
         - Placement des zones d'attérissages 
         - Regroupement des fonctions de dessin de la carte    
 '''
+
+
 class Landing:
     def __init__(self):
         self.landingEntities = pygame.sprite.Group()
@@ -86,6 +88,7 @@ class Landing:
         Arguments :
             - number_of_plateforms : nombre de plateformes qui seront placées dans la zone de jeux    
     '''
+
     @staticmethod
     def generate_plateforms(number_of_plateforms):
         listPlateforms = []
@@ -110,6 +113,8 @@ class Landing:
         - Placement des zones d'attérissages 
         - Dessin de la géographie de la planete     
 '''
+
+
 class LandingPlateform(pygame.sprite.DirtySprite):
     def __init__(self, plateformCoords):
         pygame.sprite.Sprite.__init__(self)
@@ -122,7 +127,7 @@ class LandingPlateform(pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.coords[0], self.coords[1])
         self.draw()
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pygame.mask.from_surface(self.image, 0)
 
     def draw(self):
         pygame.draw.line(self.image, LandingConfig.colorPlateform, (0, 0),
@@ -155,15 +160,18 @@ class LandingPlateform(pygame.sprite.DirtySprite):
         - Fais les calculs nécéssaires à la randominsation de la map
         - S'assure de la cohérence de la géographie de la map
 '''
+
+
 class LandingStroke(pygame.sprite.Sprite):
     def __init__(self, plateforms):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface([GameConfig.windowW, LandingConfig.height])
+        self.image = pygame.Surface([GameConfig.windowW, LandingConfig.height], pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (0, 0)
         self.plateforms = plateforms
         self.segments = self.fill_segments(self.plateforms)
         self.draw_map(self.image)
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image, 0)
 
     ''' function fill_segments 
         Usage : 
@@ -173,6 +181,7 @@ class LandingStroke(pygame.sprite.Sprite):
             - self : objet courant
             - plateforms : la plateforme données en paramètre 
     '''
+
     def fill_segments(self, plateforms):
         segments = []
         plateforms_copy = plateforms.copy()
@@ -202,6 +211,7 @@ class LandingStroke(pygame.sprite.Sprite):
             - start : début du segment 
             - end : fin du segment 
     '''
+
     def get_best_vertical_displacement(self, plateform, start, end):
         distance = math.fabs(start[0] - end[0])
         if distance > LandingConfig.minSizeBetweenPlateformDisplacementMode1:

@@ -1,11 +1,13 @@
 import pygame
 import math
+from random import randint
+from GameConfig import GameConfig
 
 
 class Lander(pygame.sprite.DirtySprite):
     def __init__(self):
         super(pygame.sprite.DirtySprite, self).__init__()
-        self.image = pygame.image.load('lander_normal.png')
+        self.image = GameConfig.lander
         self.image = pygame.transform.rotate(self.image, -90)
         self.original = self.image
 
@@ -24,7 +26,8 @@ class Lander(pygame.sprite.DirtySprite):
         self.orientation = -180.0
         self.fuel = 1000
         self.landed = False
-        self.landed_succes = False
+        self.landed_in_grace = False
+        self.explodeDelay = 0
 
     ''' function update
         Usage : 
@@ -34,11 +37,11 @@ class Lander(pygame.sprite.DirtySprite):
     '''
 
     def update(self):
-        self.update_physic(0 + self.forceAcceleration[0], LanderConfig.gravity * self.m + self.forceAcceleration[1])
+        if not self.landed:
+            self.update_physic(0 + self.forceAcceleration[0], LanderConfig.gravity * self.m + self.forceAcceleration[1])
         self.forceAcceleration = [0, 0]
         self.rect.center = (self.x, self.y)
         self.update_image()
-        print("Speed:", self.vx, self.vy)
 
     ''' function update_physic
     Usage : 
@@ -68,6 +71,7 @@ class Lander(pygame.sprite.DirtySprite):
         center = self.rect.center
         self.image = pygame.transform.rotate(self.original, -1 * self.orientation)
         self.rect = self.image.get_rect(center=center)
+        self.mask = pygame.mask.from_surface(self.image, 0)
 
     ''' function boost
         Usage : 
@@ -102,7 +106,7 @@ class Lander(pygame.sprite.DirtySprite):
                 - self : objet courant 
     '''
 
-    def landing_in_safety(self):
+    def landing_in_grace(self):
         return (-100 < self.orientation < -80) and math.fabs(self.vx) < 20
 
     ''' function check_landed : 
@@ -118,10 +122,26 @@ class Lander(pygame.sprite.DirtySprite):
             return
         collision = pygame.sprite.spritecollide(self, landing_group, False, collided=pygame.sprite.collide_mask)
         if collision:
+            self.landed_in_grace = self.landing_in_grace()
             self.landed = True
             self.vx = 0
             self.vy = 0
             self.forceAcceleration = [0, 0]
+
+    def explode(self, screen):
+        if self.explodeDelay >= LanderConfig.explodeDuration:
+            self.kill()
+            return
+        for i in range(randint(20, 40)):
+            pygame.draw.line(screen,
+                             (randint(190, 255),
+                              randint(0, 100),
+                              randint(0, 100)),
+                             self.rect.center,
+                             (randint(0, GameConfig.windowW),
+                              randint(0, GameConfig.windowH)),
+                             randint(1, 3))
+        self.explodeDelay+=1
 
 
 class LanderConfig:
@@ -130,3 +150,4 @@ class LanderConfig:
 
     initialVelocityX = 50
     initialVelocityY = 0.0
+    explodeDuration = 100
