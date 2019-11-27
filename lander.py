@@ -120,6 +120,17 @@ class Lander(pygame.sprite.DirtySprite):
     def land_succefuly(self):
         return (self.orientation <10 or self.orientation > 350) and self.vy < 20
 
+    def landing_in_safety(self):
+        return (-100 < self.orientation < -80) and math.fabs(self.vx) < 20
+
+    def check_collision(self, landing_group):
+        if self.landed:
+            return
+        collision = pygame.sprite.spritecollide(self, landing_group, False, collided=pygame.sprite.collide_mask)
+        if collision:
+            self.landed = True
+            self.vx = 0
+            self.vy = 0
 
 class LanderConfig:
     dt = 0.02

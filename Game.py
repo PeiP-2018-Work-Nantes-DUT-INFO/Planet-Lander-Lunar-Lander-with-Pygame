@@ -79,7 +79,7 @@ def gameloop(window, horloge):
             aircraft.rotate(Move.turn_right)
         if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
             aircraft.boost()
-
+        aircraft.check_collision(land.landingEntities)
         land.landingEntities.update()
         land.landingEntities.draw(window)
         aircraft_team.update()
