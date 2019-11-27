@@ -32,6 +32,7 @@ class Lander(pygame.sprite.DirtySprite):
         Argument : 
             - self : classe courant
     '''
+
     def update(self):
         self.update_physic(0 + self.forceAcceleration[0], LanderConfig.gravity * self.m + self.forceAcceleration[1])
         self.forceAcceleration = [0, 0]
@@ -47,6 +48,7 @@ class Lander(pygame.sprite.DirtySprite):
         - fx : force sur l'axe des absisses 
         - fy : force sur l'axe des ordonnées
     '''
+
     def update_physic(self, fx, fy):
         ax = fx / self.m
         ay = fy / self.m
@@ -61,6 +63,7 @@ class Lander(pygame.sprite.DirtySprite):
         Arguments : 
             - self : objet courante  
     '''
+
     def update_image(self):
         center = self.rect.center
         self.image = pygame.transform.rotate(self.original, -1 * self.orientation)
@@ -73,6 +76,7 @@ class Lander(pygame.sprite.DirtySprite):
         Arguments : 
             - self : objet courant
     '''
+
     def boost(self):
         if not self.fuel:
             return
@@ -87,8 +91,19 @@ class Lander(pygame.sprite.DirtySprite):
             - self : objet courant 
             - angle : angle de rotation pour le vaisseau   
     '''
+
     def rotate(self, angle):
         self.orientation += angle
+
+    ''' function land_succefuly : 
+            Usage : 
+                - 
+            Arguments : 
+                - self : objet courant 
+    '''
+
+    def landing_in_safety(self):
+        return (-100 < self.orientation < -80) and math.fabs(self.vx) < 20
 
     ''' function check_landed : 
         Usage : 
@@ -97,31 +112,6 @@ class Lander(pygame.sprite.DirtySprite):
             - self : objet courant 
             - surface : 
     '''
-    def check_landed(self, window):
-        if self.landed:
-            return
-        collision = pygame.sprite.collide_circle(self, window)
-        if collision:
-            self.landed = True
-            if self.land_succefuly():  # && window.
-                self.landed_succes = True
-            else:
-                self.landed_succes = False
-        self.vx = 0
-        self.vy = 0
-        self.forceAcceleration = [0, 0]
-
-    ''' function land_succefuly : 
-            Usage : 
-                - 
-            Arguments : 
-                - self : objet courant 
-    '''
-    def land_succefuly(self):
-        return (self.orientation <10 or self.orientation > 350) and self.vy < 20
-
-    def landing_in_safety(self):
-        return (-100 < self.orientation < -80) and math.fabs(self.vx) < 20
 
     def check_collision(self, landing_group):
         if self.landed:
@@ -131,6 +121,8 @@ class Lander(pygame.sprite.DirtySprite):
             self.landed = True
             self.vx = 0
             self.vy = 0
+            self.forceAcceleration = [0, 0]
+
 
 class LanderConfig:
     dt = 0.02
