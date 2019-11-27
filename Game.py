@@ -2,8 +2,8 @@
 import pygame
 
 from GameConfig import GameConfig
-from landing import Landing
-from lander import Lander
+from Components.landing import Landing
+from Components.lander import Lander
 
 
 # Définition des classes
@@ -71,8 +71,6 @@ def gameloop(window, horloge):
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     game_over = True
-                if event.key == pygame.K_UP:
-                    print("BOOOST")
         if keys[pygame.K_LEFT]:
             aircraft.rotate(Move.turn_left)
         elif keys[pygame.K_RIGHT]:
@@ -84,6 +82,11 @@ def gameloop(window, horloge):
         land.landingEntities.draw(window)
         aircraft_team.update()
         aircraft_team.draw(window)
+        if aircraft.landed:
+            if not aircraft.landed_in_grace:
+                aircraft.explode(window)
+                # render_center_text(surface, screen, "Kaboom! Your craft is destroyed.", (255,0,0))
+
         drawHUD(window, aircraft, 0)
         pygame.display.flip()
 

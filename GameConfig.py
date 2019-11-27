@@ -1,5 +1,6 @@
 import pygame
-from pygame.mixer import Sound
+from os import path
+
 
 # Définition des classes
 
@@ -10,7 +11,7 @@ class GameConfig:
     windowH = 700
 
     # Initlisation du lander et de sa taille
-    lander = pygame.image.load('lander_normal.png')
+    lander = pygame.image.load(path.join('Ressources', 'lander_normal.png'))
     imgLanderW = 30
     imgLanderH = 30
 
@@ -22,4 +23,3 @@ class GameConfig:
     hudLeftTopLeft = (30, 30)
     hudRightTopRight = (windowW - 200, 30)
     fontSizeHud = 16
-
