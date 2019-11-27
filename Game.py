@@ -4,6 +4,7 @@ import pygame
 from GameConfig import GameConfig
 from Components.landing import Landing
 from Components.lander import Lander
+from os import path
 
 
 # Définition des classes
@@ -27,7 +28,7 @@ class Move:
         - score : score de la partie
 '''
 def drawHUD(window, lander, score):
-    font = pygame.font.Font('Bender_Light.otf', GameConfig.fontSizeHud)
+    font = pygame.font.Font(path.join('Ressources', 'Bender_Light.otf'), GameConfig.fontSizeHud)
     offset = 0
 
     for i in [('SCORE : {0:04d}', score), ('FUEL : {0:03d}', lander.fuel)]:
