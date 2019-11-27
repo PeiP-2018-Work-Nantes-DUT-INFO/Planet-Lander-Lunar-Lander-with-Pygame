@@ -9,7 +9,7 @@ and in the prepare module.
 import tools
 import pygame
 from game_config import GameConfig
-from states import splash
+from states import splash, game
 
 
 def main():
@@ -23,7 +23,8 @@ def main():
     pygame.display.update()
 
     app = tools.Control(GameConfig.CAPTION_WINDOW)
-    state_dict = {"SPLASH": splash.Splash()
+    state_dict = {"SPLASH": splash.Splash(),
+                  "GAME": game.Game()
                   }
     app.state_machine.setup_states(state_dict, "SPLASH")
     app.main()

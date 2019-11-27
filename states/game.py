@@ -1,11 +1,11 @@
 # chargement des modules externes
 import pygame
 
+import state_machine
 from game_config import GameConfig
-from components.landing import Landing
+from components.landing import Landing, LandingConfig
 from components.lander import Lander
 from os import path
-
 
 # Définition des classes
 ''' class Move
@@ -13,6 +13,8 @@ from os import path
         - permet la rotation du vaisseau
         - les valeurs de turn_left et turn_right sont en degré
 '''
+
+
 class Move:
     turn_left = -2
     turn_right = 2
@@ -27,8 +29,10 @@ class Move:
         - lander : information sur le vaisseau
         - score : score de la partie
 '''
+
+
 def drawHUD(window, lander, score):
-    font = pygame.font.Font(path.join('Ressources', 'Bender_Light.otf'), GameConfig.FONTSIZE_HUD)
+    font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), GameConfig.FONTSIZE_HUD)
     offset = 0
 
     for i in [('SCORE : {0:04d}', score), ('FUEL : {0:03d}', lander.fuel)]:
@@ -47,6 +51,30 @@ def drawHUD(window, lander, score):
         offset += GameConfig.FONTSIZE_HUD
 
 
+def render_text_center(surface, string, color, start_y, y_space):
+    """
+    Takes a list of strings and returns a list of
+    (rendered_surface, rect) tuples. The rects are centered on the screen
+    and their y coordinates begin at starty, with y_space pixels between
+    each line.
+    """
+    font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), GameConfig.CENTER_TEXT_FONTSIZE)
+    rendered_text = []
+    for i, string in enumerate(string.splitlines()):
+        msg_center = (GameConfig.SCREEN_RECT.centerx, start_y + i * y_space)
+        msg_data = render_font(font, string, color, msg_center)
+        rendered_text.append(msg_data)
+    for msg in rendered_text:
+        surface.blit(msg[0], msg[1])
+
+
+def render_font(font, msg, color, center):
+    """Returns the rendered font surface and its rect centered on center."""
+    msg = font.render(msg, 1, color)
+    rect = msg.get_rect(center=center)
+    return msg, rect
+
+
 ''' function gameloop
     Usage : 
         - fonction principale du jeux
@@ -54,17 +82,43 @@ def drawHUD(window, lander, score):
         - window : fenêtre de jeux
         - horloge : variable permettant de gérer le taux de rafraichissement par seconde
 '''
-def gameloop(window, horloge):
-    game_over = False
-    land = Landing()
-    aircraft = Lander()
-    aircraft_team = pygame.sprite.Group()
-    aircraft_team.add(aircraft)
 
-    while not game_over:
-        horloge.tick(60)
 
-        window.fill(GameConfig.BACKGROUND_COLOR)
+class Game(state_machine._State):
+    """Core state for the actual gameplay."""
+
+    def __init__(self):
+        state_machine._State.__init__(self)
+        self.land = None
+        self.reset_game = True
+    def startup(self, now, persistant):
+        """
+        Call the parent class' startup method.
+        If reset_map has been set (after player death etc.) recreate the world
+        map and reset relevant variables.
+        """
+        state_machine._State.startup(self, now, persistant)
+        if self.reset_game:
+            self.land = Landing()
+            self.score = 0
+            self.fuel = 0
+        self.aircraft = Lander()
+        self.aircraft_team = pygame.sprite.Group(self.aircraft)
+
+    def cleanup(self):
+        """Store background color and sidebar for use in camp menu."""
+        self.done = False
+        return self.persist
+
+    def get_event(self, event):
+        """
+        Process game state events. Add and pop directions from the player's
+        direction stack as necessary.
+        """
+
+    def update(self, keys, now):
+        """Update phase for the primary game state."""
+        self.now = now
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,38 +127,23 @@ def gameloop(window, horloge):
                 if event.key == pygame.K_ESCAPE:
                     game_over = True
         if keys[pygame.K_LEFT]:
-            aircraft.rotate(Move.turn_left)
+            self.aircraft.rotate(Move.turn_left)
         elif keys[pygame.K_RIGHT]:
-            aircraft.rotate(Move.turn_right)
+            self.aircraft.rotate(Move.turn_right)
         if keys[pygame.K_SPACE] or keys[pygame.K_UP]:
-            aircraft.boost()
-        aircraft.check_collision(land.landingEntities)
-        land.landingEntities.update()
-        land.landingEntities.draw(window)
-        aircraft_team.update()
-        aircraft_team.draw(window)
-        if aircraft.landed:
-            if not aircraft.landed_in_grace:
-                aircraft.explode(window)
-                # render_center_text(surface, screen, "Kaboom! Your craft is destroyed.", (255,0,0))
+            self.aircraft.boost()
+        self.aircraft.check_collision(self.land.landingEntities)
+        self.land.landingEntities.update()
+        self.aircraft_team.update()
 
-        drawHUD(window, aircraft, 0)
-        pygame.display.flip()
-
-''' function main
-    Usage : 
-        - Fonction principale du jeux 
-'''
-def main():
-    pygame.init()
-    horloge = pygame.time.Clock()
-    window = pygame.display.set_mode((GameConfig.WINDOW_W, GameConfig.WINDOW_H))
-    pygame.display.set_caption("Planet Lander")
-
-    gameloop(window, horloge)
-    pygame.quit()
-    quit()
-
-
-# lancement de la fonction principale
-main()
+    def draw(self, surface, interpolate):
+        """Draw level and sidebar; if player is dead draw death sequence."""
+        surface.fill(GameConfig.BACKGROUND_COLOR)
+        self.land.landingEntities.draw(surface)
+        self.aircraft_team.draw(surface)
+        if self.aircraft.landed:
+            if not self.aircraft.landed_in_grace:
+                self.aircraft.explode(surface)
+        drawHUD(surface, self.aircraft, self.score)
+        render_text_center(surface, "Test3232 3223\nTest222\nTes", GameConfig.WHITE, 300,
+                           GameConfig.CENTER_TEXT_FONTSIZE)

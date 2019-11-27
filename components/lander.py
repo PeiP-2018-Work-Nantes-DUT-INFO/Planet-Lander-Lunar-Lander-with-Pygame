@@ -24,7 +24,7 @@ class Lander(pygame.sprite.DirtySprite):
         self.forceAcceleration = [0, 0]
 
         self.orientation = -180.0
-        self.fuel = 1000
+        self.fuel = LanderConfig.INITIAL_FUEL
         self.landed = False
         self.landed_in_grace = False
         self.explodeDelay = 0
@@ -151,3 +151,4 @@ class LanderConfig:
     initialVelocityX = 50
     initialVelocityY = 0.0
     explodeDuration = 100
+    INITIAL_FUEL = 1000
