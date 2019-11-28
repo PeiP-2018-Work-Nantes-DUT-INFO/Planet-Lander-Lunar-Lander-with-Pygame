@@ -164,8 +164,10 @@ class Lander(pygame.sprite.DirtySprite):
         """
         bonusFuel = max(self.fuel / LanderConfig.INITIAL_FUEL - 0.5, 0.0)
         return round(plateform[3] * ((40000 * bonusFuel) +
-                                     (30000 * (self.vy / LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING)) +
-                                     (30000 * (self.vx / LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING))))
+                                     (30000 * (math.fabs(self.vy) / (
+                                             LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING ** 2))) +
+                                     (30000 * (math.fabs(self.vx) / (
+                                                 LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING ** 2)))))
 
 
 class LanderConfig:
