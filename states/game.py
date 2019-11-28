@@ -241,10 +241,10 @@ class Game(state_machine._State):
                         self.display_message = GameConfig.TEXT_GAME_OVER
                     self.blink = True
                 elif self.aircraft.finished_animation:
+                    if self.AI:
+                        self.current_AI.update_distance()
                     if self.game_over():
                         self.reset_game_state()
-                        if self.AI:
-                            self.current_AI.update_distance()
                     else:
                         self.restart_game_state()
         else:
