@@ -95,6 +95,7 @@ class Game(state_machine._State):
         self.aircraft_team = None
         self.timer = None
         self.reset_game = True
+        self.reset_map = False
         self.state = "IDLE"
         self.blink = True
         self.AI = False
@@ -111,19 +112,25 @@ class Game(state_machine._State):
         """
         state_machine._State.startup(self, now, persistant)
         if not 'draw_debug' in self.persist:
-            self.persist = {"number_of_plateforms": LandingConfig.numberOfPlateforms,
-                            "draw_debug": False}
+            self.persist = {
+                "number_of_plateforms": LandingConfig.numberOfPlateforms,
+                "initial_fuel": LanderConfig.INITIAL_FUEL,
+                "draw_debug": False
+            }
         if self.reset_game:
-            self.land = Landing()
+            LandingConfig.drawDebug = self.persist['draw_debug']
+            LandingConfig.numberOfPlateforms = self.persist['number_of_plateforms']
+            LanderConfig.INITIAL_FUEL = self.persist['initial_fuel']
             self.score = 0
             self.fuel = LanderConfig.INITIAL_FUEL
             self.state = 'INTRO'
             self.AI = False
-            self.reset_game = False
-            LandingConfig.drawDebug = self.persist['draw_debug']
-            LandingConfig.numberOfPlateforms = self.persist['number_of_plateforms']
             self.blink = True
             self.timer = Timer(GameConfig.BLINKING_CENTER_TEXT)
+        if self.reset_game or self.reset_map:
+            self.reset_game = False
+            self.reset_map = False
+            self.land = Landing()
         self.aircraft = Lander()
         self.aircraft.fuel = self.fuel
         self.timer_display_message = Timer(2000)
@@ -134,6 +141,19 @@ class Game(state_machine._State):
         self.done = False
         return self.persist
 
+    def restart_game_state(self, reset_map=False):
+        self.done = True
+        self.state = 'INGAME'
+        self.next = "GAME"
+        self.blink = False
+        self.reset_map = reset_map
+
+    def reset_game_state(self):
+        self.done = True
+        self.state = 'INTRO'
+        self.reset_game = True
+        self.next = "GAME"
+
     def get_event(self, event):
         """
         Process game state events. Add and pop directions from the player's
@@ -141,43 +161,36 @@ class Game(state_machine._State):
         """
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.done = True
-                self.state = 'INTRO'
-                self.reset_game = True
-                self.next = "GAME"
+                self.reset_game_state()
             if self.state == 'INTRO':
                 if event.key == pygame.K_RETURN:
                     self.AI = False
                 if event.key == pygame.K_i:
                     self.AI = True
                 if event.key in (pygame.K_i, pygame.K_RETURN):
-                    self.done = True
-                    self.state = 'INGAME'
-                    self.next = "GAME"
-                    self.blink = False
+                    self.restart_game_state()
+                if event.key in (pygame.K_d, pygame.K_u, pygame.K_j):
+                    self.reset_game_state()
                 if event.key == pygame.K_d:
                     self.persist['draw_debug'] = not self.persist['draw_debug']
-                    self.done = True
-                    self.state = 'INTRO'
-                    self.reset_game = True
-                    self.next = "GAME"
-                if event.key == pygame.K_u:
+                elif event.key == pygame.K_u:
                     self.persist['number_of_plateforms'] += 1
-                    self.done = True
-                    self.state = 'INTRO'
-                    self.reset_game = True
-                    self.next = "GAME"
-                if event.key == pygame.K_j:
+                elif event.key == pygame.K_j:
                     self.persist['number_of_plateforms'] -= 1
-                    self.done = True
-                    self.state = 'INTRO'
-                    self.reset_game = True
-                    self.next = "GAME"
+                elif event.key == pygame.K_UP:
+                    self.update_fuel(-200)
+                    self.persist['initial_fuel'] = self.fuel
+                elif event.key == pygame.K_DOWN:
+                    self.update_fuel(200)
+                    self.persist['initial_fuel'] = self.fuel
 
     def update_fuel(self, fuel):
         self.fuel -= fuel
         self.aircraft.fuel = self.fuel
         return self.game_over()
+
+    def low_on_fuel(self, fuel):
+        return self.fuel < 200
 
     def game_over(self):
         return self.fuel <= 0
@@ -193,7 +206,7 @@ class Game(state_machine._State):
             elif self.state == 'INGAME' and self.fuel == 0:
                 self.blink = True
                 self.display_message = GameConfig.TEXT_NO_MORE_FUEL
-            elif self.state == 'INGAME' and self.fuel < 200:
+            elif self.state == 'INGAME' and self.low_on_fuel(self.fuel):
                 self.display_message = GameConfig.TEXT_LOW_FUEL
 
         if self.state == 'INGAME':
@@ -229,21 +242,17 @@ class Game(state_machine._State):
                         self.display_message = GameConfig.TEXT_GAME_OVER
                     self.blink = True
                 elif self.aircraft.finished_animation:
-                    self.next = 'GAME'
                     if self.game_over():
-                        self.reset_game = True
+                        self.reset_game_state()
                     else:
-                        self.state = 'INGAME'
-                    self.done = True
-                    self.blink = False
+                        self.restart_game_state()
         else:
             if not self.timer_display_message.check_tick(now):
                 self.display_message = GameConfig.TEXT_CONGRATULATION.format(self.aircraft.score)
                 self.blink = True
             else:
                 self.score += self.aircraft.score
-                self.done = True
-                self.blink = False
+                self.restart_game_state(True)
 
     def draw(self, surface, interpolate):
         """Draw level and sidebar; if player is dead draw death sequence."""

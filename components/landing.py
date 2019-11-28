@@ -148,7 +148,7 @@ class LandingPlateform(pygame.sprite.DirtySprite):
             self.dirty = 1
         if self.highLight:
             middle = self.coords[2] / 2
-            font = pygame.font.Font(None, LandingConfig.fontSizeScoreMultiplayer)
+            font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), LandingConfig.fontSizeScoreMultiplayer)
             img = font.render('x' + str(self.coords[3]), True, LandingConfig.colorTextScoreBonus)
             display_rect = img.get_rect()
             display_rect.centerx = middle
@@ -188,7 +188,6 @@ class LandingStroke(pygame.sprite.Sprite):
 
     def set_mask_edges(self):
         for i in range(0, GameConfig.WINDOW_W):
-            self.mask.set_at((i, 0), 1)
             self.mask.set_at((i, GameConfig.WINDOW_H - 1), 1)
         for i in range(1, GameConfig.WINDOW_H):
             self.mask.set_at((0, i), 1)
@@ -277,8 +276,8 @@ class LandingConfig:
     maxSegmentOfLanding = 6
     delayBlinkingPlateform = 30
     colorTextScoreBonus = GameConfig.WHITE
-    offsetTextScoreMultiplayer = 3
-    fontSizeScoreMultiplayer = 25
+    offsetTextScoreMultiplayer = 0
+    fontSizeScoreMultiplayer = 15
     bonuses = [
         4,
         2,
