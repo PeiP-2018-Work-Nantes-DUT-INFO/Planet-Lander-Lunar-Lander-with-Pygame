@@ -99,7 +99,7 @@ class Landing:
             plateform_length = number_of_segments * LandingConfig.segmentPxLength
             min = (i) * GameConfig.WINDOW_W / number_of_plateforms
             max = min + GameConfig.WINDOW_W / number_of_plateforms - plateform_length
-            xPos = randint(min + 1, max)
+            xPos = randint(round(min), round(max))
             yPos = randint(LandingConfig.minHeightPlateformLanding, LandingConfig.maxHeightPlateformLanding)
             percentageDifficulty = (number_of_segments - LandingConfig.minSegmentOfLanding) / (
                     LandingConfig.maxSegmentOfLanding - LandingConfig.minSegmentOfLanding)
@@ -200,7 +200,7 @@ class LandingStroke(pygame.sprite.Sprite):
         plateforms_copy.insert(0, [0, GameConfig.WINDOW_H / 2, 0])
         plateforms_copy.append([GameConfig.WINDOW_W, GameConfig.WINDOW_H / 2, 0])
         for i in range(0, len(plateforms_copy) - 1):
-            space_between_plateform = plateforms_copy[i + 1][0] - (plateforms_copy[i][0] + plateforms_copy[i][2])
+            space_between_plateform = 1 + plateforms_copy[i + 1][0] - (plateforms_copy[i][0] + plateforms_copy[i][2])
             number_of_segments = math.ceil(
                 math.log(math.ceil(space_between_plateform / LandingConfig.lengthOfSegmentsXBetweenPlateforms), 2))
             start = [plateforms_copy[i][0] + plateforms_copy[i][2], plateforms_copy[i][1]]

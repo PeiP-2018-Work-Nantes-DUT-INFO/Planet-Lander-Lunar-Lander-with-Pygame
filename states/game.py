@@ -110,6 +110,9 @@ class Game(state_machine._State):
         map and reset relevant variables.
         """
         state_machine._State.startup(self, now, persistant)
+        if not 'draw_debug' in self.persist:
+            self.persist = {"number_of_plateforms": LandingConfig.numberOfPlateforms,
+                            "draw_debug": False}
         if self.reset_game:
             self.land = Landing()
             self.score = 0
@@ -117,6 +120,8 @@ class Game(state_machine._State):
             self.state = 'INTRO'
             self.AI = False
             self.reset_game = False
+            LandingConfig.drawDebug = self.persist['draw_debug']
+            LandingConfig.numberOfPlateforms = self.persist['number_of_plateforms']
             self.blink = True
             self.timer = Timer(GameConfig.BLINKING_CENTER_TEXT)
         self.aircraft = Lander()
@@ -134,21 +139,40 @@ class Game(state_machine._State):
         Process game state events. Add and pop directions from the player's
         direction stack as necessary.
         """
-        if event.type == pygame.KEYDOWN and self.state == 'INTRO':
-            if event.key == pygame.K_RETURN:
-                self.AI = False
-            if event.key == pygame.K_i:
-                self.AI = True
-            if event.key in (pygame.K_i, pygame.K_RETURN):
-                self.done = True
-                self.state = 'INGAME'
-                self.next = "GAME"
-                self.blink = False
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.done = True
                 self.state = 'INTRO'
                 self.reset_game = True
                 self.next = "GAME"
+            if self.state == 'INTRO':
+                if event.key == pygame.K_RETURN:
+                    self.AI = False
+                if event.key == pygame.K_i:
+                    self.AI = True
+                if event.key in (pygame.K_i, pygame.K_RETURN):
+                    self.done = True
+                    self.state = 'INGAME'
+                    self.next = "GAME"
+                    self.blink = False
+                if event.key == pygame.K_d:
+                    self.persist['draw_debug'] = not self.persist['draw_debug']
+                    self.done = True
+                    self.state = 'INTRO'
+                    self.reset_game = True
+                    self.next = "GAME"
+                if event.key == pygame.K_u:
+                    self.persist['number_of_plateforms'] += 1
+                    self.done = True
+                    self.state = 'INTRO'
+                    self.reset_game = True
+                    self.next = "GAME"
+                if event.key == pygame.K_j:
+                    self.persist['number_of_plateforms'] -= 1
+                    self.done = True
+                    self.state = 'INTRO'
+                    self.reset_game = True
+                    self.next = "GAME"
 
     def update_fuel(self, fuel):
         self.fuel -= fuel
