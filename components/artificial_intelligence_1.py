@@ -88,15 +88,16 @@ class Artificial_intelligence():
             self.file = open(path.join('ressources', 'distance_4.txt'), 'w')
 
         if self.aircraft.x > self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
-            self.distance *= 1.5
-            print(self.distance)
-            print(self.plateform_arrivee[3])
+            print("trop loin, on miltiplie la distance par 2")
+            self.distance = self.distance * 1.5
             self.file.write(str(self.distance))
 
         if self.aircraft.x < self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
-            self.distance *= 0.5
-            print(self.distance)
-            print(self.plateform_arrivee[3])
+            print("trop proche, on divise la distance par 2")
+            self.distance = self.distance * 0.5
             self.file.write(str(self.distance))
+
+        print(self.distance)
+        print(self.plateform_arrivee[3])
 
         self.file.close()
