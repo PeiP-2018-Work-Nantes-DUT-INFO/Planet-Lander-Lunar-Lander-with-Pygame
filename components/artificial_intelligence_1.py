@@ -9,9 +9,9 @@ class Artificial_intelligence():
             if plateform[3] > value_max:
                 self.plateform_arrivee = plateform
                 value_max = plateform[3]
-        if plateform[3] == 1:
+        if self.plateform_arrivee[3] == 1:
             self.file = open(path.join('ressources', 'distance_1.txt'), 'r')
-        elif plateform[3] == 2:
+        elif self.plateform_arrivee[3] == 2:
             self.file = open(path.join('ressources', 'distance_2.txt'), 'r')
         else:
             self.file = open(path.join('ressources', 'distance_4.txt'), 'r')
