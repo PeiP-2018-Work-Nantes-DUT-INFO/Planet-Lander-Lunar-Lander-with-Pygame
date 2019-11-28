@@ -2,7 +2,6 @@ import pygame
 import math
 from random import randint
 from game_config import GameConfig
-from tools import Timer
 
 
 class Lander(pygame.sprite.DirtySprite):
@@ -37,17 +36,13 @@ class Lander(pygame.sprite.DirtySprite):
         self.mask = pygame.mask.from_surface(self.image, 127)
         self.boost_delay = 0
 
-
-    ''' function update
-        Usage : 
-            - Appel des différentes fonction de mise à jour. 
-        Argument : 
-            - self : classe courant
-    '''
-
     def update(self):
+        """
+        Usage :
+            - Appel des différentes fonction de mise à jour.
+        """
         if self.boost_amount:
-            self.boost_delay+=1
+            self.boost_delay += 1
         if self.boost_amount >= 0:
             self.boost_amount -= math.sqrt(self.boost_delay)
         else:
@@ -60,16 +55,13 @@ class Lander(pygame.sprite.DirtySprite):
         self.rect.center = (self.x, self.y)
         self.update_image()
 
-    ''' function update_physic
-    Usage : 
-        - Met à jour les données physiques du vaisseau (accélération, vitesse, position)
-    Arguments : 
-        - self : classe courante
-        - fx : force sur l'axe des absisses 
-        - fy : force sur l'axe des ordonnées
-    '''
-
     def update_physic(self, fx, fy):
+        """
+        Usage :
+            - Met à jour les données physiques du vaisseau (accélération, vitesse, position)
+        :param fx: force sur l'axe des absisses
+        :param fy: force sur l'axe des ordonnées
+        """
         ax = fx / self.m
         ay = fy / self.m
         self.vx = self.vx + ax * LanderConfig.dt
@@ -77,23 +69,16 @@ class Lander(pygame.sprite.DirtySprite):
         self.x = self.x + self.vx * LanderConfig.dt
         self.y = self.y + self.vy * LanderConfig.dt
 
-    ''' function update_image : 
-        Usage : 
-            - Met à jour l'image grâce à la nouvelle orientation
-        Arguments : 
-            - self : objet courante  
-    '''
-
     def update_boost(self):
-        length_flame = round(
-            (self.boost_amount / LanderConfig.BOOST_INITIAL_AMOUNT) * LanderConfig.MAX_LENGTH_FLAME)
+        """
+        Usage :
+            - Met à jour l'image de la flamme
+        """
+        length_flame = round((self.boost_amount / LanderConfig.BOOST_INITIAL_AMOUNT) * LanderConfig.MAX_LENGTH_FLAME)
         center = (self.rect.w / 2, self.rect.h / 2)
-        point_1 = rotate_point([center[0] - 4, 11 + center[1]], center,
-                               (self.orientation + 90) % 360)
-        point_2 = rotate_point([center[0] + 4, 11 + center[1]], center,
-                               (self.orientation + 90) % 360)
-        point_3 = rotate_point([center[0], length_flame + center[1] + 11], center,
-                               (self.orientation + 90) % 360)
+        point_1 = rotate_point([center[0] - 4, 11 + center[1]], center, (self.orientation + 90) % 360)
+        point_2 = rotate_point([center[0] + 4, 11 + center[1]], center, (self.orientation + 90) % 360)
+        point_3 = rotate_point([center[0], length_flame + center[1] + 11], center, (self.orientation + 90) % 360)
         thrust_point = [point_1, point_2, point_3]
         pygame.draw.polygon(self.image, GameConfig.WHITE, thrust_point, 1)
 
