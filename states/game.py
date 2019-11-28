@@ -7,6 +7,7 @@ from game_config import GameConfig
 from components.landing import Landing, LandingConfig
 from components.lander import Lander, LanderConfig
 from os import path
+from components.artificial_intelligence_1 import Artificial_intelligence
 
 # Définition des classes
 ''' class Move
@@ -76,15 +77,6 @@ def render_font(font, msg, color, center):
     return msg, rect
 
 
-''' function gameloop
-    Usage : 
-        - fonction principale du jeux
-    Arguments : 
-        - window : fenêtre de jeux
-        - horloge : variable permettant de gérer le taux de rafraichissement par seconde
-'''
-
-
 class Game(state_machine._State):
     """Core state for the actual gameplay."""
 
@@ -99,6 +91,7 @@ class Game(state_machine._State):
         self.state = "IDLE"
         self.blink = True
         self.AI = False
+        self.current_AI = None
         self.fuel = 0
         self.score = 0
         self.timer_display_message = None
@@ -111,12 +104,13 @@ class Game(state_machine._State):
         map and reset relevant variables.
         """
         state_machine._State.startup(self, now, persistant)
-        if not 'draw_debug' in self.persist:
+        if 'draw_debug' not in self.persist:
             self.persist = {
                 "number_of_plateforms": LandingConfig.numberOfPlateforms,
                 "initial_fuel": LanderConfig.INITIAL_FUEL,
                 "draw_debug": False
             }
+
         if self.reset_game:
             LandingConfig.drawDebug = self.persist['draw_debug']
             LandingConfig.numberOfPlateforms = self.persist['number_of_plateforms']
@@ -135,6 +129,8 @@ class Game(state_machine._State):
         self.aircraft.fuel = self.fuel
         self.timer_display_message = Timer(2000)
         self.aircraft_team = pygame.sprite.Group(self.aircraft)
+        if self.state == 'INGAME':
+            self.current_AI = Artificial_intelligence(self.land, self.aircraft)
 
     def cleanup(self):
         """Store background color and sidebar for use in camp menu."""
@@ -211,7 +207,10 @@ class Game(state_machine._State):
 
         if self.state == 'INGAME':
             if self.AI:
-                keys = (0,) * 323
+                keys = [0, ] * 323
+                set_key = self.current_AI.get_next_commande()
+                if set_key:
+                    keys[set_key] = 1
             if keys[pygame.K_LEFT]:
                 self.aircraft.rotate(Move.turn_left)
             elif keys[pygame.K_RIGHT]:
