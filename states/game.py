@@ -243,6 +243,8 @@ class Game(state_machine._State):
                 elif self.aircraft.finished_animation:
                     if self.game_over():
                         self.reset_game_state()
+                        if self.AI:
+                            self.current_AI.update_distance()
                     else:
                         self.restart_game_state()
         else:
