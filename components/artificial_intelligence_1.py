@@ -18,25 +18,30 @@ class Artificial_intelligence():
         self.distance = float(self.file.read())
 
         self.aircraft = aircraft
+        self.position = "gauche"
 
     def get_next_commande(self):
         print(self.aircraft.orientation)
         self.aircraft.orientation %= 360
         if self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance): # On est à gauche de la plateforme
-            print("gauche")
-            if self.aircraft.vx > 25:
+            self.position = "gauche"
+            if self.aircraft.vx > 50:
                 if self.aircraft.orientation != 270:
                     return self.turn_270()
                 if self.aircraft.y > 140 and self.aircraft.vy > -10:
                     return pygame.K_UP
-            if self.aircraft.vx < 25:
+            if self.aircraft.vx < 50:
                 if self.aircraft.orientation != 0:
                     return self.turn_0()
                 return pygame.K_UP
 
         if self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance): # On est à droite de la plateforme
-            print("droite")
-            if self.aircraft.vx > 25:
+            self.position = "droite"
+            if self.aircraft.vx > -50:
+                if self.aircraft.orientation != 180:
+                    return self.turn_180()
+                return pygame.K_UP
+            if self.aircraft.vx < -50:
                 if self.aircraft.orientation != 270:
                     return self.turn_270()
                 if self.aircraft.y > 140 and self.aircraft.vy > -10:
@@ -48,7 +53,7 @@ class Artificial_intelligence():
                 return pygame.K_UP
 
         if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) < self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2)):
-            print("in_gauche")
+            self.position = "gauche"
             if self.aircraft.vx > 0.0:
                 if self.aircraft.orientation != 180:
                     return self.turn_180()
@@ -61,7 +66,7 @@ class Artificial_intelligence():
                 return pygame.K_UP
 
         if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2)) < self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
-            print("in_droite")
+            self.position = "droite"
             if self.aircraft.orientation != 0:
                 return self.turn_0()
             if self.aircraft.vx > 0:
@@ -74,30 +79,35 @@ class Artificial_intelligence():
                     return pygame.K_UP
 
     def turn_0(self):
-        print("turn_0")
         if self.aircraft.orientation > 180.0:
             return pygame.K_RIGHT
         else:
             return pygame.K_LEFT
 
     def turn_270(self):
-        print("turn_270")
         if 90.0 < self.aircraft.orientation < 270.0:
             return pygame.K_RIGHT
         else:
             return pygame.K_LEFT
 
     def turn_180(self):
-        print("turn_180")
         if self.aircraft.orientation > 180.0:
             return pygame.K_LEFT
         else:
             return pygame.K_RIGHT
 
     def update_distance(self):
-        if self.aircraft.x > self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
-            self.distance *= 0.5
-            self.file.write(str(self.distance))
-        if self.aircraft.x < self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
-            self.distance *= 1.5
-            self.file.write(str(self.distance))
+        if self.position == "gauche":
+            if self.aircraft.x > self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
+                self.distance *= 0.5
+                self.file.write(str(self.distance))
+            if self.aircraft.x < self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
+                self.distance *= 1.5
+                self.file.write(str(self.distance))
+        elif self.position == "write":
+            if self.aircraft.x < self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
+                self.distance *= 0.5
+                self.file.write(str(self.distance))
+            if self.aircraft.x > self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2):
+                self.distance *= 1.5
+                self.file.write(str(self.distance))
