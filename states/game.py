@@ -9,6 +9,7 @@ from components.landing import Landing, LandingConfig
 from components.lander import Lander, LanderConfig
 from os import path
 from components.artificial_intelligence_1 import Artificial_intelligence
+from components.artificial_intelligence_2 import ArtificialIntelligence2
 
 # Définition des classes
 ''' class Move
@@ -133,7 +134,9 @@ class Game(state_machine._State):
         self.timer_display_message = Timer(2000)
         self.aircraft_team = pygame.sprite.Group(self.aircraft)
         if self.state == 'INGAME':
-            self.current_AI = Artificial_intelligence(self.land, self.aircraft)
+            # self.current_AI = Artificial_intelligence(self.land, self.aircraft)
+            self.current_AI = ArtificialIntelligence2()
+            self.current_AI.game_start(self.land, self.aircraft)
 
     def cleanup(self):
         """Store background color and sidebar for use in camp menu."""
@@ -212,7 +215,7 @@ class Game(state_machine._State):
         if self.state == 'INGAME':
             if self.AI:
                 keys = [0, ] * 323
-                set_key = self.current_AI.get_next_commande()
+                set_key = self.current_AI.get_next_command()
                 if set_key:
                     keys[set_key] = 1
             if keys[pygame.K_LEFT]:

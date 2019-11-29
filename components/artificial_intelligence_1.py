@@ -22,7 +22,7 @@ class Artificial_intelligence():
         self.aircraft = aircraft
         self.deceleration = False
 
-    def get_next_commande(self):
+    def get_next_command(self):
         self.orientation_aircraft = self.aircraft.orientation % 360
         print(self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance)
         print(self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance)
