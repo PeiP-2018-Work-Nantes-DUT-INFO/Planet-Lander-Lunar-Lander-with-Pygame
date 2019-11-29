@@ -1,5 +1,6 @@
 # chargement des modules externes
 import pygame
+import components.debug
 
 import state_machine
 from tools import Timer
@@ -96,6 +97,7 @@ class Game(state_machine._State):
         self.score = 0
         self.timer_display_message = None
         self.display_message = ''
+        self.debug_group = components.debug.debug_group
 
     def startup(self, now, persistant):
         """
@@ -124,6 +126,7 @@ class Game(state_machine._State):
         if self.reset_game or self.reset_map:
             self.reset_game = False
             self.reset_map = False
+            components.debug.debug_sprite_fixed.reset()
             self.land = Landing()
         self.aircraft = Lander()
         self.aircraft.fuel = self.fuel
@@ -194,6 +197,7 @@ class Game(state_machine._State):
     def update(self, keys, now):
         """Update phase for the primary game state."""
         self.now = now
+        self.debug_group.update()
         if self.state == 'INTRO' or (self.state == 'INGAME' and self.fuel < 200):
             if self.timer.check_tick(now):
                 self.blink = not self.blink
@@ -263,6 +267,7 @@ class Game(state_machine._State):
         if self.aircraft.landed:
             if not self.aircraft.landed_in_grace:
                 self.aircraft.explode(surface)
+        self.debug_group.draw(surface)
         drawHUD(surface, self.aircraft, self.score)
         if self.blink:
             render_text_center(surface, self.display_message, GameConfig.COLOR_CENTER_TEXT,

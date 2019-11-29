@@ -9,6 +9,7 @@ and in the prepare module.
 import tools
 import pygame
 from game_config import GameConfig
+from components.debug import init_global
 from states import splash, game
 from os import path
 
@@ -27,6 +28,8 @@ def main():
     _render = pygame.font.Font(None, 100).render("LOADING...", 0, pygame.Color("white"))
     _screen.blit(_render, _render.get_rect(center=GameConfig.SCREEN_RECT.center))
     pygame.display.update()
+
+    init_global()
 
     app = tools.Control(GameConfig.CAPTION_WINDOW)
     state_dict = {"SPLASH": splash.Splash(),
