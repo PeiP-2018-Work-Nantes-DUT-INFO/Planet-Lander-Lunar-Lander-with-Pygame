@@ -23,44 +23,31 @@ class Artificial_intelligence():
 
     def get_next_commande(self):
         self.aircraft.orientation %= 360
-        if self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance): # On est à gauche de la plateforme
-            return self.on_the_left()
-            # if self.aircraft.vx >= 50:
-            #     if self.aircraft.orientation != 270:
-            #         return self.turn_270()
-            #     if self.aircraft.y > 140 and self.aircraft.vy > -10:
-            #         return pygame.K_UP
-            # if self.aircraft.vx < 50:
-            #     if self.aircraft.orientation != 0:
-            #         return self.turn_0()
-            #     return pygame.K_UP
+        print(self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance)
+        print(self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance)
+        print(self.aircraft.vx)
+        print(self.aircraft.x)
+        print('\n')
+        if self.plateform_arrivee[0] < 200:
+            # la condition marche pas, je sais pas pourquoi, je verrai demain matin
+            if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) > self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
+                print('uesh')
+                if self.aircraft.vx < 0:
+                    return self.exception_in_the_middle()
+            if self.aircraft.x < 200:
+                return self.exception_from_the_left()
+            if self.aircraft.x > 200:
+                return self.exception_fron_the_right()
 
-        if self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance): # On est à droite de la plateforme
-            return self.on_the_right()
-            # if self.aircraft.y > 130 and self.aircraft.vy > -10:
-            #     if self.aircraft.orientation != 270:
-            #          return self.turn_270()
-            #     return pygame.K_UP
-            # if self.aircraft.vx > -50:
-            #     if self.aircraft.orientation != 180:
-            #         return self.turn_180()
-            #     return pygame.K_UP
-            # if self.aircraft.vx <= -50:
-            #     if self.aircraft.orientation != 270:
-            #         return self.turn_270()
+        else:
+            if self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance): # On est à gauche de la plateforme
+                return self.on_the_left()
 
-        if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) < self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
-            return self.in_the_middle()
-            # if self.aircraft.vx > 0.0:
-            #     if self.aircraft.orientation != 180:
-            #         return self.turn_180()
-            #     if self.aircraft.vx > 0:
-            #         return pygame.K_UP
-            #
-            # if self.aircraft.orientation != 270:
-            #     return self.turn_270()
-            # if self.aircraft.vy > 14:
-            #     return pygame.K_UP
+            if self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance): # On est à droite de la plateforme
+                return self.on_the_right()
+
+            if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) < self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
+                return self.in_the_middle()
 
 
     def turn_0(self):
@@ -82,7 +69,6 @@ class Artificial_intelligence():
             return pygame.K_RIGHT
 
     def update_distance(self):
-        print("je passe bien ici")
         if self.plateform_arrivee[3] == 1:
             self.file = open(path.join('ressources', 'distance_1.txt'), 'w')
         elif self.plateform_arrivee[3] == 2:
@@ -100,8 +86,8 @@ class Artificial_intelligence():
             self.distance = self.distance * 0.5
             self.file.write(str(self.distance))
 
-        print(self.distance)
-        print(self.plateform_arrivee[3])
+        # print(self.distance)
+        # print(self.plateform_arrivee[3])
 
         self.file.close()
 
@@ -119,7 +105,7 @@ class Artificial_intelligence():
 
     def in_the_middle(self):
         self.deceleration = True
-        if self.aircraft.vx > 0.000000000000:
+        if self.aircraft.vx > 0.0:
             if self.aircraft.orientation != 180:
                 return self.turn_180()
             if self.aircraft.vx > 0:
@@ -127,5 +113,39 @@ class Artificial_intelligence():
 
         if self.aircraft.orientation != 270:
             return self.turn_270()
-        if self.aircraft.vy > 10:
+        if self.aircraft.vy > 19:
+            return pygame.K_UP
+
+    def exception_from_the_left(self):
+        if self.deceleration:
+            return self.exception_in_the_middle()
+        elif self.aircraft.y > 100 and self.aircraft.vy > -10:
+            if self.aircraft.orientation != 270:
+                return self.turn_270()
+            return pygame.K_UP
+
+    def exception_fron_the_right(self):
+        if self.deceleration:
+            return self.exception_in_the_middle()
+        elif self.aircraft.y > 100 and self.aircraft.vy > -10:
+            if self.aircraft.orientation != 270:
+                return self.turn_270()
+            return pygame.K_UP
+        elif self.aircraft.vx > -25:
+            if self.aircraft.orientation != 180.0:
+                return self.turn_180()
+            return pygame.K_UP
+
+    def exception_in_the_middle(self):
+        print('cc')
+        self.deceleration = True
+        if self.aircraft.vx < 0.0:
+            if self.aircraft.orientation != 0:
+                return self.turn_0()
+            if self.aircraft.vx < 0:
+                return pygame.K_UP
+
+        if self.aircraft.orientation != 270:
+            return self.turn_270()
+        if self.aircraft.vy > 19:
             return pygame.K_UP
