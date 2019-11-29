@@ -2,6 +2,7 @@ import pygame
 import math
 from random import randint
 from game_config import GameConfig
+import components.debug as debug
 
 
 class Lander(pygame.sprite.DirtySprite):
@@ -19,8 +20,8 @@ class Lander(pygame.sprite.DirtySprite):
 
         self.x = self.rect.center[0]
         self.y = self.rect.center[1]
-        self.vx = LanderConfig.initialVelocityX
-        self.vy = LanderConfig.initialVelocityY
+        self.vx = LanderConfig.INITIAL_VELOCITY_X
+        self.vy = LanderConfig.INITIAL_VELOCITY_Y
 
         self.m = 5
         self.engine_power = 16.22 * self.m
@@ -30,11 +31,15 @@ class Lander(pygame.sprite.DirtySprite):
         self.fuel = LanderConfig.INITIAL_FUEL
         self.landed = False
         self.landed_in_grace = False
-        self.explodeDelay = 0
+        self.explode_delay = 0
         self.finished_animation = False
         self.boost_amount = 0
         self.mask = pygame.mask.from_surface(self.image, 127)
         self.boost_delay = 0
+
+        self.projection_motion_trajectory = []
+        if LanderConfig.DRAW_PROJECTION_TRACE:
+            self.update_trajectory()
 
     def update(self):
         """
@@ -50,10 +55,27 @@ class Lander(pygame.sprite.DirtySprite):
             self.boost_amount = 0
 
         if not self.landed:
-            self.update_physic(0 + self.forceAcceleration[0], LanderConfig.gravity * self.m + self.forceAcceleration[1])
+            self.update_physic(0 + self.forceAcceleration[0], LanderConfig.GRAVITY * self.m + self.forceAcceleration[1])
+            if LanderConfig.DRAW_PROJECTION_TRACE and (math.fabs(self.forceAcceleration[0]) > 0 or math.fabs(self.forceAcceleration[1]) > 0):
+                self.update_trajectory()
         self.forceAcceleration = [0, 0]
         self.rect.center = (self.x, self.y)
         self.update_image()
+        if LanderConfig.DRAW_PROJECTION_TRACE:
+            self.draw_trajectory()
+
+    def update_trajectory(self):
+        self.projection_motion_trajectory = []
+        for i in range(1, 500, 1):
+            self.projection_motion_trajectory.append((self.vx * i + self.x,
+                                                      0.5 * LanderConfig.GRAVITY * (i ** 2) + self.vy * i + self.y
+                                                      ))
+
+    def draw_trajectory(self):
+        for (x, y) in self.projection_motion_trajectory:
+            pygame.draw.circle(debug.debug_sprite_dynamic.image, GameConfig.WHITE,
+                               [int(x), int(y)],
+                               4, 4)
 
     def update_physic(self, fx, fy):
         """
@@ -64,10 +86,10 @@ class Lander(pygame.sprite.DirtySprite):
         """
         ax = fx / self.m
         ay = fy / self.m
-        self.vx = self.vx + ax * LanderConfig.dt
-        self.vy = self.vy + ay * LanderConfig.dt
-        self.x = self.x + self.vx * LanderConfig.dt
-        self.y = self.y + self.vy * LanderConfig.dt
+        self.vx = self.vx + ax * LanderConfig.DT
+        self.vy = self.vy + ay * LanderConfig.DT
+        self.x = self.x + self.vx * LanderConfig.DT
+        self.y = self.y + self.vy * LanderConfig.DT
 
     def update_boost(self):
         """
@@ -161,7 +183,7 @@ class Lander(pygame.sprite.DirtySprite):
             self.forceAcceleration = [0, 0]
 
     def explode(self, screen):
-        if self.explodeDelay >= LanderConfig.explodeDuration:
+        if self.explode_delay >= LanderConfig.EXPLOSION_DURATION:
             self.kill()
             self.finished_animation = True
             return
@@ -174,7 +196,7 @@ class Lander(pygame.sprite.DirtySprite):
                              (randint(0, GameConfig.WINDOW_W),
                               randint(0, GameConfig.WINDOW_H)),
                              randint(1, 3))
-        self.explodeDelay += 1
+        self.explode_delay += 1
 
     def compute_score(self, plateform):
         """
@@ -185,8 +207,8 @@ class Lander(pygame.sprite.DirtySprite):
         :param plateform:
         :return:
         """
-        bonusFuel = max(self.fuel / LanderConfig.INITIAL_FUEL - 0.5, 0.0)
-        return round(plateform[3] * ((40000 * bonusFuel) +
+        bonus_fuel = max(self.fuel / LanderConfig.INITIAL_FUEL - 0.5, 0.0)
+        return round(plateform[3] * ((40000 * bonus_fuel) +
                                      (30000 * (math.fabs(self.vy) / (
                                              LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING ** 2))) +
                                      (30000 * (math.fabs(self.vx) / (
@@ -202,15 +224,15 @@ def rotate_point(point, center, angle):
 
 
 class LanderConfig:
-    dt = 0.02
-    gravity = 3.244  # 1.622 * 2
-
-    initialVelocityX = 50
-    initialVelocityY = 0.0
-    explodeDuration = 150
+    DT = 0.02
+    GRAVITY = 3.244  # 1.622 * 2
+    INITIAL_VELOCITY_X = 50
+    INITIAL_VELOCITY_Y = 0.0
+    EXPLOSION_DURATION = 150
     INITIAL_FUEL = 1000
     MAX_VELOCITY_HORIZONTAL_SAFE_LANDING = 10
     MAX_VELOCITY_VERTICAL_SAFE_LANDING = 20
     MAX_LENGTH_FLAME = 20
     BOOST_INITIAL_AMOUNT = 50
     OFFSET_FLAME = 30
+    DRAW_PROJECTION_TRACE = True

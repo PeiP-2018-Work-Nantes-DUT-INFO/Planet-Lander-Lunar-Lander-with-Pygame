@@ -1,6 +1,7 @@
 from game_config import GameConfig
 from random import randint, choice
 from os import path
+import components.debug as debug
 import pygame
 import bisect
 import math
@@ -177,6 +178,7 @@ class LandingStroke(pygame.sprite.Sprite):
         self.draw_map(self.image)
         self.mask = pygame.mask.from_surface(self.image, 0)
         self.set_mask_edges()
+
     ''' function fill_segments 
         Usage : 
             - Donne la valeur des plateforme (multiplicateur de points)
@@ -238,8 +240,16 @@ class LandingStroke(pygame.sprite.Sprite):
         for i in range(0, len(self.segments) - 1):
             pygame.draw.line(window, GameConfig.WHITE, self.segments[i], self.segments[i + 1])
             if LandingConfig.drawDebug:
-                pygame.draw.circle(self.image, GameConfig.WHITE, [int(self.segments[i][0]), int(self.segments[i][1])],
+                pygame.draw.circle(debug.debug_sprite_fixed.image, GameConfig.WHITE,
+                                   [int(self.segments[i][0]), int(self.segments[i][1])],
                                    4, 4)
+        if LandingConfig.drawDebug:
+            font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), 30)
+            img = font.render('DEBUG ENABLED | GAME VERSION {}'.format(GameConfig.VERSION_TEXT), True,
+                              LandingConfig.colorTextScoreBonus)
+            display_rect = img.get_rect()
+            display_rect.bottomright = (GameConfig.WINDOW_W - 10, GameConfig.WINDOW_H - 10)
+            debug.debug_sprite_fixed.image.blit(img, display_rect)
 
     def draw_displacement_debug(self, start, end, verticalDisplacement, segments):
         font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), 20)
@@ -248,12 +258,12 @@ class LandingStroke(pygame.sprite.Sprite):
         middle = (start[0] + end[0]) / 2
         display_rect.centerx = middle
         display_rect.top = 0
-        self.image.blit(img, display_rect)
-        pygame.draw.line(self.image, GameConfig.RED, (middle, 0), (middle, GameConfig.WINDOW_H))
+        debug.debug_sprite_fixed.image.blit(img, display_rect)
+        pygame.draw.line(debug.debug_sprite_fixed.image, GameConfig.RED, (middle, 0), (middle, GameConfig.WINDOW_H))
         color = [randint(0, 255), randint(0, 255), randint(0, 255)]
-        pygame.draw.circle(self.image, color, [int(start[0]), int(start[1])],
+        pygame.draw.circle(debug.debug_sprite_fixed.image, color, [int(start[0]), int(start[1])],
                            8, 6)
-        pygame.draw.circle(self.image, color, [int(end[0]), int(end[1])],
+        pygame.draw.circle(debug.debug_sprite_fixed.image, color, [int(end[0]), int(end[1])],
                            8, 6)
         x_distance = segments[-1][0] - segments[-2][0]
         img = font.render(str(x_distance), True, LandingConfig.colorTextScoreBonus)
@@ -261,7 +271,7 @@ class LandingStroke(pygame.sprite.Sprite):
         middle = segments[-1][0]
         display_rect.left = middle
         display_rect.top = 0
-        self.image.blit(img, display_rect)
+        debug.debug_sprite_fixed.image.blit(img, display_rect)
 
 
 class LandingConfig:
