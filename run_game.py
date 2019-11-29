@@ -10,6 +10,7 @@ import tools
 import pygame
 from game_config import GameConfig
 from states import splash, game
+from os import path
 
 
 def main():
@@ -17,6 +18,11 @@ def main():
     pygame.init()
     _screen = pygame.display.set_mode((GameConfig.WINDOW_W, GameConfig.WINDOW_H))
     pygame.display.set_caption(GameConfig.CAPTION_WINDOW)
+
+    pygame.mixer.music.load(path.join('ressources', 'music.mp3'))
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.2)
+
     _screen.fill(GameConfig.BACKGROUND_COLOR)
     _render = pygame.font.Font(None, 100).render("LOADING...", 0, pygame.Color("white"))
     _screen.blit(_render, _render.get_rect(center=GameConfig.SCREEN_RECT.center))

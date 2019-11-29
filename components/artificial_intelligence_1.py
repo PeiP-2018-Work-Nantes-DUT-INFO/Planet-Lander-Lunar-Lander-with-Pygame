@@ -19,45 +19,48 @@ class Artificial_intelligence():
         self.file.close()
 
         self.aircraft = aircraft
+        self.deceleration = False
 
     def get_next_commande(self):
-
         self.aircraft.orientation %= 360
         if self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance): # On est à gauche de la plateforme
-            if self.aircraft.vx >= 50:
-                if self.aircraft.orientation != 270:
-                    return self.turn_270()
-                if self.aircraft.y > 140 and self.aircraft.vy > -10:
-                    return pygame.K_UP
-            if self.aircraft.vx < 50:
-                if self.aircraft.orientation != 0:
-                    return self.turn_0()
-                return pygame.K_UP
+            return self.on_the_left()
+            # if self.aircraft.vx >= 50:
+            #     if self.aircraft.orientation != 270:
+            #         return self.turn_270()
+            #     if self.aircraft.y > 140 and self.aircraft.vy > -10:
+            #         return pygame.K_UP
+            # if self.aircraft.vx < 50:
+            #     if self.aircraft.orientation != 0:
+            #         return self.turn_0()
+            #     return pygame.K_UP
 
         if self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance): # On est à droite de la plateforme
-            if self.aircraft.y > 140 and self.aircraft.vy > -10:
-                if self.aircraft.orientation != 270:
-                     return self.turn_270()
-                return pygame.K_UP
-            if self.aircraft.vx > -50:
-                if self.aircraft.orientation != 180:
-                    return self.turn_180()
-                return pygame.K_UP
-            if self.aircraft.vx <= -50:
-                if self.aircraft.orientation != 270:
-                    return self.turn_270()
+            return self.on_the_right()
+            # if self.aircraft.y > 130 and self.aircraft.vy > -10:
+            #     if self.aircraft.orientation != 270:
+            #          return self.turn_270()
+            #     return pygame.K_UP
+            # if self.aircraft.vx > -50:
+            #     if self.aircraft.orientation != 180:
+            #         return self.turn_180()
+            #     return pygame.K_UP
+            # if self.aircraft.vx <= -50:
+            #     if self.aircraft.orientation != 270:
+            #         return self.turn_270()
 
         if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) < self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
-            if self.aircraft.vx > 0.0:
-                if self.aircraft.orientation != 180:
-                    return self.turn_180()
-                if self.aircraft.vx > 0:
-                    return pygame.K_UP
-
-            if self.aircraft.orientation != 270:
-                return self.turn_270()
-            if self.aircraft.vy > 14:
-                return pygame.K_UP
+            return self.in_the_middle()
+            # if self.aircraft.vx > 0.0:
+            #     if self.aircraft.orientation != 180:
+            #         return self.turn_180()
+            #     if self.aircraft.vx > 0:
+            #         return pygame.K_UP
+            #
+            # if self.aircraft.orientation != 270:
+            #     return self.turn_270()
+            # if self.aircraft.vy > 14:
+            #     return pygame.K_UP
 
 
     def turn_0(self):
@@ -101,3 +104,28 @@ class Artificial_intelligence():
         print(self.plateform_arrivee[3])
 
         self.file.close()
+
+    def on_the_left(self):
+        if self.deceleration:
+            return self.in_the_middle()
+        elif self.aircraft.y > 100 and self.aircraft.vy > -10:
+            if self.aircraft.orientation != 270:
+                return self.turn_270()
+            return pygame.K_UP
+
+    def on_the_right(self):
+        if self.deceleration:
+            return self.in_the_middle()
+
+    def in_the_middle(self):
+        self.deceleration = True
+        if self.aircraft.vx > 0.000000000000:
+            if self.aircraft.orientation != 180:
+                return self.turn_180()
+            if self.aircraft.vx > 0:
+                return pygame.K_UP
+
+        if self.aircraft.orientation != 270:
+            return self.turn_270()
+        if self.aircraft.vy > 10:
+            return pygame.K_UP
