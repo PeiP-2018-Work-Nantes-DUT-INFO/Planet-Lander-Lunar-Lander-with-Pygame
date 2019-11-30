@@ -8,7 +8,7 @@ from game_config import GameConfig
 from components.landing import Landing, LandingConfig
 from components.lander import Lander, LanderConfig
 from os import path
-from components.artificial_intelligence_1 import Artificial_intelligence
+from components.artificial_intelligence_1 import ArtificialIntelligence1
 from components.artificial_intelligence_2 import ArtificialIntelligence2
 
 # Définition des classes
@@ -27,15 +27,15 @@ class Move:
 # Définition des fonctions
 
 
-def drawHUD(window, lander, score):
-    ''' function drawHUD
+def draw_HUD(window, lander, score):
+    """ function drawHUD
         Usage :
             - affichage du score, du carburant et des données de vol
         Argument :
             - window : fenêtre de jeux
             - lander : information sur le vaisseau
             - score : score de la partie
-    '''
+    """
     font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), GameConfig.FONTSIZE_HUD)
     offset = 0
 
@@ -46,8 +46,8 @@ def drawHUD(window, lander, score):
         window.blit(img, display_rect)
         offset += GameConfig.FONTSIZE_HUD
     offset = 0
-    for i in [('ALTITUDE : {0:04.0f}', GameConfig.WINDOW_H - lander.y), ('HORIZONTAL SPEED: {0:.0f}', lander.vx,),
-              ('VERTICAL SPEED: {0:.0f}', lander.vy)]:
+    for i in [('ALTITUDE : {0:04.0f}', GameConfig.WINDOW_H - lander.y), ('HORIZONTAL SPEED: {0:.2f}', lander.vx,),
+              ('VERTICAL SPEED: {0:.2f}', lander.vy)]:
         img = font.render(i[0].format(i[1]), True, GameConfig.WHITE)
         display_rect = img.get_rect()
         display_rect.topleft = (GameConfig.HUD_RIGHT_TOPLEFT[0], GameConfig.HUD_RIGHT_TOPLEFT[1] + offset)
@@ -79,11 +79,11 @@ def render_font(font, msg, color, center):
     return msg, rect
 
 
-class Game(state_machine._State):
+class Game(state_machine.State):
     """Core state for the actual gameplay."""
 
     def __init__(self):
-        state_machine._State.__init__(self)
+        state_machine.State.__init__(self)
         self.land = None
         self.aircraft = None
         self.aircraft_team = None
@@ -106,7 +106,7 @@ class Game(state_machine._State):
         If reset_map has been set (after player death etc.) recreate the world
         map and reset relevant variables.
         """
-        state_machine._State.startup(self, now, persistant)
+        state_machine.State.startup(self, now, persistant)
         if 'draw_debug' not in self.persist:
             self.persist = {
                 "number_of_plateforms": LandingConfig.numberOfPlateforms,
@@ -134,7 +134,7 @@ class Game(state_machine._State):
         self.timer_display_message = Timer(2000)
         self.aircraft_team = pygame.sprite.Group(self.aircraft)
         if self.state == 'INGAME':
-            # self.current_AI = Artificial_intelligence(self.land, self.aircraft)
+            # self.current_AI = ArtificialIntelligence1(self.land, self.aircraft)
             self.current_AI = ArtificialIntelligence2()
             self.current_AI.game_start(self.land, self.aircraft)
 
@@ -192,7 +192,7 @@ class Game(state_machine._State):
         return self.game_over()
 
     def low_on_fuel(self, fuel):
-        return self.fuel < 200
+        return fuel < 200
 
     def game_over(self):
         return self.fuel <= 0
@@ -214,9 +214,12 @@ class Game(state_machine._State):
 
         if self.state == 'INGAME':
             if self.AI:
-                keys = [0, ] * 323
-                set_key = self.current_AI.get_next_command()
-                if set_key:
+                keys = None
+                set_key = self.current_AI.get_next_command(now)
+                if isinstance(set_key, list):
+                    keys = set_key
+                elif set_key:
+                    keys = [0, ] * 323
                     keys[set_key] = 1
             if keys[pygame.K_LEFT]:
                 self.aircraft.rotate(Move.turn_left)
@@ -249,11 +252,15 @@ class Game(state_machine._State):
                     self.blink = True
                 elif self.aircraft.finished_animation:
                     if self.AI:
-                        self.current_AI.update_distance()
+                        self.current_AI.changed_state()
                     if self.game_over():
                         self.reset_game_state()
+                        if self.AI:
+                            self.current_AI.game_over()
                     else:
                         self.restart_game_state()
+                        if self.AI:
+                            self.current_AI.loose()
         else:
             if not self.timer_display_message.check_tick(now):
                 self.display_message = GameConfig.TEXT_CONGRATULATION.format(self.aircraft.score)
@@ -271,7 +278,7 @@ class Game(state_machine._State):
             if not self.aircraft.landed_in_grace:
                 self.aircraft.explode(surface)
         self.debug_group.draw(surface)
-        drawHUD(surface, self.aircraft, self.score)
+        draw_HUD(surface, self.aircraft, self.score)
         if self.blink:
             render_text_center(surface, self.display_message, GameConfig.COLOR_CENTER_TEXT,
                                GameConfig.OFFSET_Y_CENTER_TEXT,

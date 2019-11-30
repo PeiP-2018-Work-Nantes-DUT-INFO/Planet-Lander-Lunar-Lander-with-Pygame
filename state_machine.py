@@ -7,6 +7,7 @@ class StateMachine(object):
     """
     A generic state machine.
     """
+
     def __init__(self):
         self.done = False
         self.state_dict = {}
@@ -56,13 +57,14 @@ class StateMachine(object):
         self.state.get_event(event)
 
 
-class _State(object):
+class State(object):
     """
     This is a prototype class for states.  All states should inherit from it.
     No direct instances of this class should be created. get_event and update
     must be overloaded in the childclass.  The startup and cleanup methods
     need to be overloaded when there is data that must persist between states.
     """
+
     def __init__(self):
         self.start_time = 0.0
         self.now = 0.0

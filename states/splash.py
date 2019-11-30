@@ -8,11 +8,11 @@ from game_config import GameConfig
 import state_machine
 
 
-class Splash(state_machine._State):
+class Splash(state_machine.State):
     """This State is updated while our game shows the splash screen."""
 
     def __init__(self):
-        state_machine._State.__init__(self)
+        state_machine.State.__init__(self)
         self.next = "GAME"
         self.timeout = 5
         self.alpha = 0

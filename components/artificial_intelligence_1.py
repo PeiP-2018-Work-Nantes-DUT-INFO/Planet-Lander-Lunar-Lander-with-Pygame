@@ -1,11 +1,19 @@
 import pygame
 from os import path
+from components.artificial_intelligence import ArtificialIntelligence
 
 
-class Artificial_intelligence():
-    def __init__(self, landing, aircraft):
-        value_max = 0
+class ArtificialIntelligence1(ArtificialIntelligence):
+    def __init__(self):
+        ArtificialIntelligence.__init__(self)
         self.orientation_aircraft = 0
+        self.plateform_arrivee = None
+        self.file = None
+        self.distance = None
+        self.deceleration = False
+
+    def game_start(self, landing, aircraft):
+        value_max = 0
         for plateform in landing.plateforms:
             if plateform[3] > value_max:
                 self.plateform_arrivee = plateform
@@ -22,7 +30,7 @@ class Artificial_intelligence():
         self.aircraft = aircraft
         self.deceleration = False
 
-    def get_next_command(self):
+    def get_next_command(self, now):
         self.orientation_aircraft = self.aircraft.orientation % 360
         print(self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance)
         print(self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance)
@@ -31,7 +39,8 @@ class Artificial_intelligence():
         print('\n')
         if self.plateform_arrivee[0] < 200:
             # la condition marche pas, je sais pas pourquoi, je verrai demain matin
-            if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) > self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
+            if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) > self.aircraft.x > (
+                    self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
                 print('uesh')
                 if self.aircraft.vx < 0:
                     return self.exception_in_the_middle()
@@ -41,15 +50,17 @@ class Artificial_intelligence():
                 return self.exception_fron_the_right()
 
         else:
-            if self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance): # On est à gauche de la plateforme
+            if self.aircraft.x < (self.plateform_arrivee[0] + (
+                    self.plateform_arrivee[2] / 2) - self.distance):  # On est à gauche de la plateforme
                 return self.on_the_left()
 
-            if self.aircraft.x > (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance): # On est à droite de la plateforme
+            if self.aircraft.x > (self.plateform_arrivee[0] + (
+                    self.plateform_arrivee[2] / 2) + self.distance):  # On est à droite de la plateforme
                 return self.on_the_right()
 
-            if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) < self.aircraft.x < (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
+            if (self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) - self.distance) < self.aircraft.x < (
+                    self.plateform_arrivee[0] + (self.plateform_arrivee[2] / 2) + self.distance):
                 return self.in_the_middle()
-
 
     def turn_0(self):
         if self.orientation_aircraft > 180.0:
@@ -69,7 +80,7 @@ class Artificial_intelligence():
         else:
             return pygame.K_RIGHT
 
-    def update_distance(self):
+    def changed_state(self):
         if self.plateform_arrivee[3] == 1:
             self.file = open(path.join('ressources', 'distance_1.txt'), 'w')
         elif self.plateform_arrivee[3] == 2:

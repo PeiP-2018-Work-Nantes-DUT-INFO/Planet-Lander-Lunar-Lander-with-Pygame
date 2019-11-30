@@ -3,7 +3,6 @@ This module contains the fundamental Control class.
 Also contained here are resource loading functions.
 """
 
-import os
 import pygame as pg
 
 import state_machine
