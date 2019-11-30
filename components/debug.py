@@ -1,6 +1,10 @@
 import pygame
 from game_config import GameConfig
 
+debug_group = None
+debug_sprite_dynamic = None
+debug_sprite_fixed = None
+
 
 class DebugSprite(pygame.sprite.Sprite):
     def __init__(self, fixed):
