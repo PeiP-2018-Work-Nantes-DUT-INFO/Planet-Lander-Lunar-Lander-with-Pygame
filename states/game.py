@@ -91,7 +91,7 @@ class Game(state_machine.State):
         self.reset_game = True
         self.reset_map = False
         self.state = "IDLE"
-        self.blink = True
+        self.blink = False
         self.AI = False
         self.current_AI = None
         self.fuel = 0
@@ -124,7 +124,7 @@ class Game(state_machine.State):
             self.fuel = LanderConfig.INITIAL_FUEL
             self.state = 'INTRO'
             self.AI = False
-            self.blink = True
+            self.blink = False
             self.timer = Timer(GameConfig.BLINKING_CENTER_TEXT)
         if self.reset_game or self.reset_map:
             self.reset_game = False
