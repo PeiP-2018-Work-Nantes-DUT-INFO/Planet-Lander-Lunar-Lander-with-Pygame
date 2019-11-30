@@ -111,12 +111,14 @@ class Game(state_machine.State):
             self.persist = {
                 "number_of_plateforms": LandingConfig.numberOfPlateforms,
                 "initial_fuel": LanderConfig.INITIAL_FUEL,
-                "draw_debug": False
+                "draw_debug": False,
+                "projection_trace": False
             }
 
         if self.reset_game:
             LandingConfig.drawDebug = self.persist['draw_debug']
             LandingConfig.numberOfPlateforms = self.persist['number_of_plateforms']
+            LanderConfig.DRAW_PROJECTION_TRACE = self.persist['projection_trace']
             LanderConfig.INITIAL_FUEL = self.persist['initial_fuel']
             self.score = 0
             self.fuel = LanderConfig.INITIAL_FUEL
@@ -171,10 +173,12 @@ class Game(state_machine.State):
                     self.AI = True
                 if event.key in (pygame.K_i, pygame.K_RETURN):
                     self.restart_game_state()
-                if event.key in (pygame.K_d, pygame.K_u, pygame.K_j):
+                if event.key in (pygame.K_d, pygame.K_u, pygame.K_j, pygame.K_p):
                     self.reset_game_state()
                 if event.key == pygame.K_d:
                     self.persist['draw_debug'] = not self.persist['draw_debug']
+                if event.key == pygame.K_p:
+                    self.persist['projection_trace'] = not self.persist['projection_trace']
                 elif event.key == pygame.K_u:
                     self.persist['number_of_plateforms'] += 1
                 elif event.key == pygame.K_j:
