@@ -7,7 +7,7 @@ import components.debug as debug
 
 class Lander(pygame.sprite.DirtySprite):
     def __init__(self):
-        super(pygame.sprite.DirtySprite, self).__init__()
+        pygame.sprite.DirtySprite.__init__(self)
         rect_img = GameConfig.LANDER_IMG.get_rect()
         self.image = pygame.Surface((rect_img.size[0] + 30, rect_img.size[1] + 30), pygame.SRCALPHA)
         self.rect = self.image.get_rect()
@@ -24,7 +24,7 @@ class Lander(pygame.sprite.DirtySprite):
         self.vy = LanderConfig.INITIAL_VELOCITY_Y
 
         self.m = 5
-        self.engine_power = 16.22 * self.m
+        self.engine_power = 16.22
         self.forceAcceleration = [0, 0]
 
         self.orientation = -180
@@ -38,8 +38,8 @@ class Lander(pygame.sprite.DirtySprite):
         self.boost_delay = 0
 
         self.projection_motion_trajectory = []
-        if LanderConfig.DRAW_PROJECTION_TRACE:
-            self.update_trajectory()
+        self.invisible_trajectory = InvisibleTrajectory()
+        self.update_trajectory()
 
     def update(self):
         """
@@ -56,7 +56,7 @@ class Lander(pygame.sprite.DirtySprite):
 
         if not self.landed:
             self.update_physic(0 + self.forceAcceleration[0], LanderConfig.GRAVITY * self.m + self.forceAcceleration[1])
-            if LanderConfig.DRAW_PROJECTION_TRACE and (math.fabs(self.forceAcceleration[0]) > 0 or math.fabs(self.forceAcceleration[1]) > 0):
+            if math.fabs(self.forceAcceleration[0]) > 0 or math.fabs(self.forceAcceleration[1]) > 0:
                 self.update_trajectory()
         self.forceAcceleration = [0, 0]
         self.rect.center = (self.x, self.y)
@@ -70,12 +70,14 @@ class Lander(pygame.sprite.DirtySprite):
             self.projection_motion_trajectory.append((self.vx * i + self.x,
                                                       0.5 * LanderConfig.GRAVITY * (i ** 2) + self.vy * i + self.y
                                                       ))
+        self.invisible_trajectory.update(self.projection_motion_trajectory)
 
     def draw_trajectory(self):
         for (x, y) in self.projection_motion_trajectory:
             pygame.draw.circle(debug.debug_sprite_dynamic.image, GameConfig.WHITE,
                                [int(x), int(y)],
                                4, 4)
+            # debug.debug_sprite_fixed.image.blit(self.invisible_trajectory.image, self.invisible_trajectory.rect)
 
     def update_physic(self, fx, fy):
         """
@@ -121,7 +123,7 @@ class Lander(pygame.sprite.DirtySprite):
     '''
 
     def boost(self):
-        if not self.fuel:
+        if not self.fuel or self.landed:
             return
         self.boost_delay = 0
         if self.boost_amount >= LanderConfig.BOOST_INITIAL_AMOUNT:
@@ -129,8 +131,8 @@ class Lander(pygame.sprite.DirtySprite):
         else:
             self.boost_amount += LanderConfig.OFFSET_FLAME
         self.fuel -= 1
-        self.forceAcceleration = [self.engine_power * math.cos(math.radians(self.orientation)),
-                                  self.engine_power * math.sin(math.radians(self.orientation))]
+        self.forceAcceleration = [self.m * self.engine_power * math.cos(math.radians(self.orientation)),
+                                  self.m * self.engine_power * math.sin(math.radians(self.orientation))]
 
     ''' function rotate : 
         Usage : 
@@ -153,8 +155,18 @@ class Lander(pygame.sprite.DirtySprite):
     '''
 
     def landing_in_grace(self):
-        return (-100 < self.orientation < -80) and math.fabs(self.vy) < LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING \
+        return (-100 < self.orientation < -80) and math.fabs(self.vy) < LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING\
                and math.fabs(self.vx) < LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING
+
+    def will_collide_with_land_before_plateform(self, land, plateform):
+        collision = pygame.sprite.collide_mask(self.invisible_trajectory, land)
+        if collision:
+            if self.x < plateform[0] + plateform[2] / 2:
+                return collision[1] < plateform[1] and collision[0] < plateform[0]
+            else:
+                return collision[1] < plateform[1] and collision[0] > plateform[0]
+        else:
+            return False
 
     ''' function check_landed : 
         Usage : 
@@ -221,6 +233,22 @@ def rotate_point(point, center, angle):
         math.cos(angle) * (point[0] - center[0]) - math.sin(angle) * (point[1] - center[1]) + center[0],
         math.sin(angle) * (point[0] - center[0]) + math.cos(angle) * (point[1] - center[1]) + center[0]
     )
+
+
+class InvisibleTrajectory(pygame.sprite.DirtySprite):
+    def __init__(self):
+        pygame.sprite.DirtySprite.__init__(self)
+        self.image = pygame.Surface((GameConfig.WINDOW_W, GameConfig.WINDOW_H), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.points = []
+        self.mask = None
+
+    def update(self, points):
+        self.points = points
+        self.image.fill((0, 0, 0, 0))
+        for i in range(0, len(points) - 1):
+            pygame.draw.line(self.image, GameConfig.WHITE, points[i], points[i + 1], GameConfig.LANDER_IMG_H + 100)
+        self.mask = pygame.mask.from_surface(self.image, 127)
 
 
 class LanderConfig:

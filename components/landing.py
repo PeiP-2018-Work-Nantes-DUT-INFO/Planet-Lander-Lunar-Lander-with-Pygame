@@ -46,14 +46,14 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
             midpoint = list(map(lambda x: (points_tup[i][x] + points_tup[i + 1][x]) / 2,
                                 [0, 1]))
             # Déplacer le point médian de la coordonnée y
-            goingUpDisplacement = -vertical_displacement
-            goingDownDisplacement = vertical_displacement
-            if midpoint[1] + goingUpDisplacement < limit[0]:
-                goingUpDisplacement = -(midpoint[1] - limit[0])
-            if midpoint[1] + goingDownDisplacement > limit[1]:
-                goingDownDisplacement = limit[1] - midpoint[1]
-            midpoint[1] += choice([goingUpDisplacement,
-                                   goingDownDisplacement])
+            going_up_displacement = -vertical_displacement
+            going_down_displacement = vertical_displacement
+            if midpoint[1] + going_up_displacement < limit[0]:
+                going_up_displacement = -(midpoint[1] - limit[0])
+            if midpoint[1] + going_down_displacement > limit[1]:
+                going_down_displacement = limit[1] - midpoint[1]
+            midpoint[1] += choice([going_up_displacement,
+                                   going_down_displacement])
             # Insérer le point médian déplacé dans la liste de points courante
             bisect.insort(points, midpoint)
             #  bisect permet d'insérer un élément dans une liste de façon à ce que son ordre
@@ -81,8 +81,8 @@ class Landing:
         self.landingStroke = LandingStroke(self.plateforms)
         self.landingEntities.add(self.landingStroke)
         for plateform in self.plateforms:
-            plateformSprite = LandingPlateform(plateform)
-            self.landingEntities.add(plateformSprite)
+            plateform_sprite = LandingPlateform(plateform)
+            self.landingEntities.add(plateform_sprite)
 
     ''' function generate_plateforms
         Usage : 
@@ -93,21 +93,21 @@ class Landing:
 
     @staticmethod
     def generate_plateforms(number_of_plateforms):
-        listPlateforms = []
+        list_plateforms = []
         for i in range(0, number_of_plateforms):
             number_of_segments = randint(LandingConfig.minSegmentOfLanding,
                                          LandingConfig.maxSegmentOfLanding)
             plateform_length = number_of_segments * LandingConfig.segmentPxLength
-            min = (i) * GameConfig.WINDOW_W / number_of_plateforms
-            max = min + GameConfig.WINDOW_W / number_of_plateforms - plateform_length
-            xPos = randint(round(min), round(max))
-            yPos = randint(LandingConfig.minHeightPlateformLanding, LandingConfig.maxHeightPlateformLanding)
-            percentageDifficulty = (number_of_segments - LandingConfig.minSegmentOfLanding) / (
+            min_zone = i * GameConfig.WINDOW_W / number_of_plateforms
+            max_zone = min_zone + GameConfig.WINDOW_W / number_of_plateforms - plateform_length
+            x_pos = randint(round(min_zone), round(max_zone))
+            y_pos = randint(LandingConfig.minHeightPlateformLanding, LandingConfig.maxHeightPlateformLanding)
+            percentage_difficulty = (number_of_segments - LandingConfig.minSegmentOfLanding) / (
                     LandingConfig.maxSegmentOfLanding - LandingConfig.minSegmentOfLanding)
-            index = math.floor((len(LandingConfig.bonuses) - 1) * percentageDifficulty)
+            index = math.floor((len(LandingConfig.bonuses) - 1) * percentage_difficulty)
             bonus = LandingConfig.bonuses[index]
-            listPlateforms.append((xPos, yPos, plateform_length, bonus))
-        return listPlateforms
+            list_plateforms.append((x_pos, y_pos, plateform_length, bonus))
+        return list_plateforms
 
 
 ''' class Landing 
@@ -118,15 +118,15 @@ class Landing:
 
 
 class LandingPlateform(pygame.sprite.DirtySprite):
-    def __init__(self, plateformCoords):
+    def __init__(self, plateform_coords):
         pygame.sprite.Sprite.__init__(self)
         self.dirty = 2
         self.delay = 0
         self.type = 1
         self.highLight = False
-        self.coords = plateformCoords
+        self.coords = plateform_coords
         self.image = pygame.Surface(
-            [plateformCoords[2], LandingConfig.segmentWidthPlateform + LandingConfig.fontSizeScoreMultiplayer],
+            [plateform_coords[2], LandingConfig.segmentWidthPlateform + LandingConfig.fontSizeScoreMultiplayer],
             pygame.SRCALPHA)
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.coords[0], self.coords[1])
@@ -153,8 +153,8 @@ class LandingPlateform(pygame.sprite.DirtySprite):
             img = font.render('x' + str(self.coords[3]), True, LandingConfig.colorTextScoreBonus)
             display_rect = img.get_rect()
             display_rect.centerx = middle
-            display_rect.bottom = display_rect.height + LandingConfig.segmentWidthPlateform + \
-                                  LandingConfig.offsetTextScoreMultiplayer
+            display_rect.bottom = display_rect.height + LandingConfig.segmentWidthPlateform \
+                                  + LandingConfig.offsetTextScoreMultiplayer
             self.image.blit(img, display_rect)
         self.delay += 1
 
@@ -220,7 +220,7 @@ class LandingStroke(pygame.sprite.Sprite):
             - Calcul du déplcement vertical d'un point médian entre deux point déjà présent 
         Arguments : 
             - self : objet courant 
-            - plateform : !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            - plateform : !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             - start : début du segment 
             - end : fin du segment 
     '''
@@ -251,9 +251,9 @@ class LandingStroke(pygame.sprite.Sprite):
             display_rect.bottomright = (GameConfig.WINDOW_W - 10, GameConfig.WINDOW_H - 10)
             debug.debug_sprite_fixed.image.blit(img, display_rect)
 
-    def draw_displacement_debug(self, start, end, verticalDisplacement, segments):
+    def draw_displacement_debug(self, start, end, vertical_displacement, segments):
         font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), 20)
-        img = font.render(str(verticalDisplacement), True, LandingConfig.colorTextScoreBonus)
+        img = font.render(str(vertical_displacement), True, LandingConfig.colorTextScoreBonus)
         display_rect = img.get_rect()
         middle = (start[0] + end[0]) / 2
         display_rect.centerx = middle
@@ -276,7 +276,7 @@ class LandingStroke(pygame.sprite.Sprite):
 
 class LandingConfig:
     numberOfPlateforms = 5
-    segmentPxLength = 15
+    segmentPxLength = 16
     minSizeBetweenPlateformDisplacementMode1 = 100
     lengthOfSegmentsXBetweenPlateforms = 10
     colorPlateform = GameConfig.WHITE
