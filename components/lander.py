@@ -155,7 +155,7 @@ class Lander(pygame.sprite.DirtySprite):
     '''
 
     def landing_in_grace(self):
-        return (-100 < self.orientation < -80) and math.fabs(self.vy) < LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING\
+        return (-100 < self.orientation < -80) and math.fabs(self.vy) < LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING \
                and math.fabs(self.vx) < LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING
 
     def will_collide_with_land_before_plateform(self, land, plateform):
@@ -222,16 +222,16 @@ class Lander(pygame.sprite.DirtySprite):
         bonus_fuel = max(self.fuel / LanderConfig.INITIAL_FUEL - 0.5, 0.0)
         return round(plateform[3] * ((40000 * bonus_fuel) +
                                      (30000 * (math.fabs(self.vy) / (
-                                             LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING ** 2))) +
+                                         LanderConfig.MAX_VELOCITY_VERTICAL_SAFE_LANDING)) ** 2) +
                                      (30000 * (math.fabs(self.vx) / (
-                                             LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING ** 2)))))
+                                         LanderConfig.MAX_VELOCITY_HORIZONTAL_SAFE_LANDING)) ** 2)))
 
 
 def rotate_point(point, center, angle):
     angle = math.radians(angle)
     return (
         math.cos(angle) * (point[0] - center[0]) - math.sin(angle) * (point[1] - center[1]) + center[0],
-        math.sin(angle) * (point[0] - center[0]) + math.cos(angle) * (point[1] - center[1]) + center[0]
+        math.sin(angle) * (point[0] - center[0]) + math.cos(angle) * (point[1] - center[1]) + center[1]
     )
 
 
