@@ -41,7 +41,7 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
 
         points_tup = tuple(points)
         for i in range(len(points_tup) - 1):
-            # Calculez les coordonnées des points médians x et y :
+            # Calcule les coordonnées des points médians x et y :
             # [(x_i+x_(i+1))/2, (y_i+y_(i+1))/2]
             midpoint = list(map(lambda x: (points_tup[i][x] + points_tup[i + 1][x]) / 2,
                                 [0, 1]))
@@ -206,7 +206,7 @@ class LandingStroke(pygame.sprite.Sprite):
                 math.log(math.ceil(space_between_plateform / LandingConfig.lengthOfSegmentsXBetweenPlateforms), 2))
             start = [plateforms_copy[i][0] + plateforms_copy[i][2], plateforms_copy[i][1]]
             end = [plateforms_copy[i + 1][0], plateforms_copy[i + 1][1]]
-            vertical_displacement = self.get_best_vertical_displacement(plateforms_copy[i], start, end)
+            vertical_displacement = self.get_best_vertical_displacement(start, end)
             segments.extend(midpoint_displacement(start, end, LandingConfig.roughness,
                                                   (LandingConfig.minHeightMap, LandingConfig.maxHeightMap),
                                                   vertical_displacement, num_of_iterations=number_of_segments))
@@ -225,10 +225,10 @@ class LandingStroke(pygame.sprite.Sprite):
             - end : fin du segment 
     '''
 
-    def get_best_vertical_displacement(self, plateform, start, end):
+    def get_best_vertical_displacement(self, start, end):
         distance = math.fabs(start[0] - end[0])
         if distance > LandingConfig.minSizeBetweenPlateformDisplacementMode1:
-            return min(self.nearest_edge_distance_y(plateform), (start[1] + end[1]) / 2)
+            return min(self.nearest_edge_distance_y(start), (start[1] + end[1]) / 2)
         else:
             return math.fabs(start[1] - end[1]) / 2
 
