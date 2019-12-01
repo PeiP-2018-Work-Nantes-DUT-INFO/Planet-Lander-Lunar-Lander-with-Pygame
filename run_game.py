@@ -11,6 +11,7 @@ import pygame
 from game_config import GameConfig
 from components.debug import init_global
 from states import splash, game
+from states.demo import demo
 from os import path
 
 
@@ -33,7 +34,8 @@ def main():
 
     app = tools.Control(GameConfig.CAPTION_WINDOW)
     state_dict = {"SPLASH": splash.Splash(),
-                  "GAME": game.Game()
+                  "GAME": game.Game(),
+                  "DEMO": demo.Demo()
                   }
     app.state_machine.setup_states(state_dict, "SPLASH")
     app.main()

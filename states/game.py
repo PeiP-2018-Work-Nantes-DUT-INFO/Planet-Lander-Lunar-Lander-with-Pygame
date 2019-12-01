@@ -11,15 +11,16 @@ from os import path
 from components.artificial_intelligence_1 import ArtificialIntelligence1
 from components.artificial_intelligence_2 import ArtificialIntelligence2
 
-# Définition des classes
-''' class Move
-    Usage : 
-        - permet la rotation du vaisseau
-        - les valeurs de turn_left et turn_right sont en degré
-'''
 
+# Définition des classes
 
 class Move:
+    """ class Move
+        Usage :
+            - permet la rotation du vaisseau
+            - les valeurs de turn_left et turn_right sont en degré
+    """
+
     turn_left = -2
     turn_right = 2
 
@@ -99,11 +100,13 @@ class Game(state_machine.State):
         self.timer_display_message = None
         self.display_message = ''
         self.debug_group = components.debug.debug_group
+        self.timer_demo = None
+        self.timing_demo = 0
 
     def startup(self, now, persistant):
         """
         Call the parent class' startup method.
-        If reset_map has been set (after player death etc.) recreate the world
+        If reset_map has been set (after game over etc.) recreate the world
         map and reset relevant variables.
         """
         state_machine.State.startup(self, now, persistant)
@@ -126,6 +129,9 @@ class Game(state_machine.State):
             self.AI = False
             self.blink = False
             self.timer = Timer(GameConfig.BLINKING_CENTER_TEXT)
+            self.timing_demo = 0
+            self.timer_demo = Timer(1000)
+
         if self.reset_game or self.reset_map:
             self.reset_game = False
             self.reset_map = False
@@ -134,6 +140,7 @@ class Game(state_machine.State):
         self.aircraft = Lander()
         self.aircraft.fuel = self.fuel
         self.timer_display_message = Timer(2000)
+        self.timer_demo.timer = now
         self.aircraft_team = pygame.sprite.Group(self.aircraft)
         if self.state == 'INGAME':
             # self.current_AI = ArtificialIntelligence1(self.land, self.aircraft)
@@ -141,7 +148,6 @@ class Game(state_machine.State):
             self.current_AI.game_start(self.land, self.aircraft)
 
     def cleanup(self):
-        """Store background color and sidebar for use in camp menu."""
         self.done = False
         return self.persist
 
@@ -158,15 +164,18 @@ class Game(state_machine.State):
         self.reset_game = True
         self.next = "GAME"
 
+    def switch_to_demo(self):
+        self.done = True
+        self.next = "DEMO"
+        self.reset_game = True
+
     def get_event(self, event):
-        """
-        Process game state events. Add and pop directions from the player's
-        direction stack as necessary.
-        """
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.reset_game_state()
             if self.state == 'INTRO':
+                if event.key == pygame.K_a:
+                    self.switch_to_demo()
                 if event.key == pygame.K_RETURN:
                     self.AI = False
                 if event.key == pygame.K_i:
@@ -205,6 +214,8 @@ class Game(state_machine.State):
         """Update phase for the primary game state."""
         self.now = now
         self.debug_group.update()
+        if self.state == 'INTRO' and self.timer_demo.check_tick(now):
+            self.timing_demo += 1
         if self.state == 'INTRO' or (self.state == 'INGAME' and self.fuel < 200):
             if self.timer.check_tick(now):
                 self.blink = not self.blink
@@ -241,6 +252,9 @@ class Game(state_machine.State):
         else:
             self.timer_display_message.timer = now
 
+        if self.timing_demo >= GameConfig.TIME_SECONDS_BEFORE_DEMO and not self.done:
+            self.switch_to_demo()
+
     def update_landed(self, now):
         if not self.aircraft.landed_in_grace:
             if self.state == 'INTRO' and self.aircraft.finished_animation:
@@ -274,7 +288,6 @@ class Game(state_machine.State):
                 self.restart_game_state(True)
 
     def draw(self, surface, interpolate):
-        """Draw level and sidebar; if player is dead draw death sequence."""
         surface.fill(GameConfig.BACKGROUND_COLOR)
         self.land.landingEntities.draw(surface)
         self.aircraft_team.draw(surface)

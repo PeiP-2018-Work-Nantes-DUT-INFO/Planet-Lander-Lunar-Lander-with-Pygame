@@ -1,11 +1,11 @@
 """
-A generalized state machine.  Most notably used for general program flow.
+Une machine a état générique. Utilisé pour le flox d'execution général du programme.
 """
 
 
 class StateMachine(object):
     """
-    A generic state machine.
+    Une machine à état générique
     """
 
     def __init__(self):
