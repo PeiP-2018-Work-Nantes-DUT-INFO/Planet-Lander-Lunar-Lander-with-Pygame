@@ -1,7 +1,5 @@
 # chargement des modules externes
 import pygame
-import components.debug
-
 import state_machine
 from tools import Timer
 from game_config import GameConfig

@@ -8,7 +8,7 @@ from game_config import GameConfig
 from components.landing import Landing, LandingConfig
 from components.lander import Lander, LanderConfig
 from os import path
-from components.artificial_intelligence_1 import ArtificialIntelligence1
+# from components.artificial_intelligence_1 import ArtificialIntelligence1
 from components.artificial_intelligence_2 import ArtificialIntelligence2
 
 
