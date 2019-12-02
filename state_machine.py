@@ -1,6 +1,7 @@
 """
 Une machine a état générique. Utilisée pour le flow d'execution général du programme.
 Source: https://github.com/Mekire/cabbages-and-kings
+Copyright 2018, Sean J. McKiernan
 """
 
 
