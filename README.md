@@ -6,6 +6,9 @@ Inspiré de Lunar Lander.
 
 Par Adame NAJI, Simon SASSI
 
+## Dépôt officiel:
+
+https://gitlab.univ-nantes.fr/E183694S/planet-lander-python
 
 ## Attention 
 
