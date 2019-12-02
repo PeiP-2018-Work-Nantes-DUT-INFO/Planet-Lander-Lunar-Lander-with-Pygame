@@ -1,3 +1,4 @@
+"""Sprite qui représente le module lunaire"""
 import pygame
 import math
 from random import randint

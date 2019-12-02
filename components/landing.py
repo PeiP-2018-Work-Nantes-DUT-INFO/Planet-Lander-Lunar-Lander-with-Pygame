@@ -1,3 +1,4 @@
+"""Représente le terrain"""
 from game_config import GameConfig
 from random import randint, choice
 from os import path
@@ -67,14 +68,13 @@ def midpoint_displacement(start, end, roughness, limit, vertical_displacement=No
     return points
 
 
-''' class Landing 
-    Usage :
-        - Placement des zones d'attérissages 
-        - Regroupement des fonctions de dessin de la carte    
-'''
-
-
 class Landing:
+    """ class Landing
+        Usage :
+            - Placement des zones d'attérissages
+            - Regroupement des fonctions de dessin de la carte
+    """
+
     def __init__(self):
         self.landingEntities = pygame.sprite.Group()
         self.plateforms = Landing.generate_plateforms(LandingConfig.numberOfPlateforms)
@@ -84,15 +84,15 @@ class Landing:
             plateform_sprite = LandingPlateform(plateform)
             self.landingEntities.add(plateform_sprite)
 
-    ''' function generate_plateforms
-        Usage : 
-            - génère les plateformes sur lesquels le vaisseau se pose
-        Arguments :
-            - number_of_plateforms : nombre de plateformes qui seront placées dans la zone de jeux    
-    '''
-
     @staticmethod
     def generate_plateforms(number_of_plateforms):
+        """
+         function generate_plateforms
+        Usage :
+            - génère les plateformes sur lesquels le vaisseau se pose
+        Arguments :
+            - number_of_plateforms : nombre de plateformes qui seront placées dans la zone de jeux
+        """
         list_plateforms = []
         for i in range(0, number_of_plateforms):
             number_of_segments = randint(LandingConfig.minSegmentOfLanding,
@@ -110,14 +110,9 @@ class Landing:
         return list_plateforms
 
 
-''' class Landing 
-    Usage :
-        - Placement des zones d'attérissages 
-        - Dessin de la géographie de la planete     
-'''
-
-
 class LandingPlateform(pygame.sprite.DirtySprite):
+    """Sprite qui représente une plateforme, le multiplicateur de score est aussi déssiné dans la sprite."""
+
     def __init__(self, plateform_coords):
         pygame.sprite.Sprite.__init__(self)
         self.dirty = 2
@@ -159,14 +154,11 @@ class LandingPlateform(pygame.sprite.DirtySprite):
         self.delay += 1
 
 
-''' class Landing 
-    Usage :
-        - Fais les calculs nécéssaires à la randominsation de la map
-        - S'assure de la cohérence de la géographie de la map
-'''
-
-
 class LandingStroke(pygame.sprite.Sprite):
+    """ class LandingStroke
+        Represente les reliefs de la carte.
+    """
+
     def __init__(self, plateforms):
         pygame.sprite.Sprite.__init__(self)
         self.type = 2
@@ -179,16 +171,11 @@ class LandingStroke(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image, 0)
         self.set_mask_edges()
 
-    ''' function fill_segments 
-        Usage : 
-            - Donne la valeur des plateforme (multiplicateur de points)
-            - Fait clignoter les plateformes et les bonus
-        Arguments : 
-            - self : objet courant
-            - plateforms : la plateforme données en paramètre 
-    '''
-
     def set_mask_edges(self):
+        """
+        Empêche le joueur de sortir de l'écran
+        :return:
+        """
         for i in range(0, GameConfig.WINDOW_W):
             self.mask.set_at((i, GameConfig.WINDOW_H - 1), 1)
         for i in range(1, GameConfig.WINDOW_H):
@@ -196,6 +183,11 @@ class LandingStroke(pygame.sprite.Sprite):
             self.mask.set_at((GameConfig.WINDOW_W - 1, i), 1)
 
     def fill_segments(self, plateforms):
+        """
+        Utilise l'algorithme de déplacement de point central pour générer les segments entre les plateformes
+        :param plateforms: les plateformes de la carte
+        :return:
+        """
         segments = []
         plateforms_copy = plateforms.copy()
         plateforms_copy.insert(0, [0, GameConfig.WINDOW_H / 2, 0])
@@ -215,17 +207,11 @@ class LandingStroke(pygame.sprite.Sprite):
 
         return segments
 
-    ''' function get_best_vertical_displacement 
-        Usage : 
-            - Calcul du déplcement vertical d'un point médian entre deux point déjà présent 
-        Arguments : 
-            - self : objet courant 
-            - plateform : !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            - start : début du segment 
-            - end : fin du segment 
-    '''
-
     def get_best_vertical_displacement(self, start, end):
+        """
+            donne le meilleure déplacement vertical pour l'algo de deplacement de point central
+            entre un point de début et de fin.
+        """
         distance = math.fabs(start[0] - end[0])
         if distance > LandingConfig.minSizeBetweenPlateformDisplacementMode1:
             return min(self.nearest_edge_distance_y(start), (start[1] + end[1]) / 2)
@@ -233,10 +219,15 @@ class LandingStroke(pygame.sprite.Sprite):
             return math.fabs(start[1] - end[1]) / 2
 
     def nearest_edge_distance_y(self, plateform):
+        """donne la distance du bord d'écran le plus proche de la plateforme"""
         return min(math.fabs(LandingConfig.maxHeightMap - plateform[1]),
                    math.fabs(LandingConfig.minHeightMap - plateform[1]))
 
     def draw_map(self, window):
+        """
+        dessine la carte, est appellée qu'une seule fois à la construction de la sprite à raison de perfomances
+        seules les plateformes sont animées
+        """
         for i in range(0, len(self.segments) - 1):
             pygame.draw.line(window, GameConfig.WHITE, self.segments[i], self.segments[i + 1])
             if LandingConfig.drawDebug:
@@ -297,7 +288,9 @@ class LandingConfig:
     ]
     minHeightPlateformLanding = GameConfig.WINDOW_H * 0.5
     maxHeightPlateformLanding = GameConfig.WINDOW_H - segmentWidthPlateform - fontSizeScoreMultiplayer
+    # Taille minimale ou peut être dessiner le terrain (evite que les montagnes soient trop hautes)
     minHeightMap = 150
+    # Taille maximale ou peut être dessiner le terrain (evite que le terrain deborde en bas de l'écran)
     maxHeightMap = GameConfig.WINDOW_H * 0.98
     height = GameConfig.WINDOW_H * 1
     roughness = 1.3

@@ -1,5 +1,6 @@
 """
-Une machine a état générique. Utilisé pour le flox d'execution général du programme.
+Une machine a état générique. Utilisée pour le flow d'execution général du programme.
+Source: https://github.com/Mekire/cabbages-and-kings
 """
 
 

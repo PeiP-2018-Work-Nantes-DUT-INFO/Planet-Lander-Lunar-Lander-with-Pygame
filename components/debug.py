@@ -1,3 +1,5 @@
+"""Sprite utilisée pour afficher les infos de debug sur l'écran.
+debug_sprite_dynamic est reset à chaque update, tandis que debug_sprite_fixed n'est pas reset"""
 import pygame
 from game_config import GameConfig
 
@@ -23,6 +25,7 @@ class DebugSprite(pygame.sprite.Sprite):
 
 
 def init_global():
+    """initialise les sprites globales, appellé dans le main"""
     global debug_group
     debug_group = pygame.sprite.Group()
     global debug_sprite_dynamic

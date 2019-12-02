@@ -1,4 +1,8 @@
 # chargement des modules externes
+"""
+Etat des crédits lancé lors de la démo.
+Le module lunaire défile, et le texte change
+"""
 import pygame
 import components.debug
 
@@ -99,11 +103,11 @@ class CreditConfig:
         'LIBS USED:\nPYGAME\nVISUALS FROM ATARI',
         'THANKS TO OUR TESTERS:\nALBERT GUIHARD',
         'THANKS TO OUR TESTERS:\nBAPTISTE BATARD',
-        'WE DON''T FORGET THEM:\nVINCENT RICORDEL\nMATTIAS DUPUIS\nPHILIPPE RANNOU',
+        'WE DON''T FORGET THEM:\nPHILIPPE RANNOU\nVINCENT RICORDEL\nMATTIAS DUPUIS',
         'IUT DE NANTES 2019\nIT DEPARTMENT\nUNIVERSITY OF NANTES'
     ]
     CREDIT_DURATION = 6000
     DELAY_BETWEEN_CREDITS = 700
-    OFFSET_Y_CREDIT = 300
+    OFFSET_Y_CREDIT = round(0.428 * GameConfig.WINDOW_H)
     SPEED_AIRCRAFT = 200
-    AIRCRAFT_Y_POS = 50
+    AIRCRAFT_Y_POS = LandingConfig.minHeightMap - 30

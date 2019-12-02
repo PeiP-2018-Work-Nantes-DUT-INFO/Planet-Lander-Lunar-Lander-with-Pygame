@@ -8,6 +8,7 @@ from game_config import GameConfig
 from components.landing import Landing, LandingConfig
 from components.lander import Lander, LanderConfig
 from os import path
+# s'il faut changer l'IA:
 # from components.artificial_intelligence_1 import ArtificialIntelligence1
 from components.artificial_intelligence_2 import ArtificialIntelligence2
 
@@ -58,10 +59,9 @@ def draw_HUD(window, lander, score):
 
 def render_text_center(surface, string, color, start_y, y_space):
     """
-    Takes a list of strings and returns a list of
-    (rendered_surface, rect) tuples. The rects are centered on the screen
-    and their y coordinates begin at starty, with y_space pixels between
-    each line.
+    Prend une liste de chaine de caractères et retourne un liste
+    de tuples(surface, rect). Les rects sont centrés sur l'écran et leur coordonée y commence à starty,
+    avec un espace de y_space entre cjaque liogne
     """
     font = pygame.font.Font(path.join('ressources', 'Bender_Light.otf'), GameConfig.FONTSIZE_CENTER_TEXT)
     rendered_text = []
@@ -74,14 +74,16 @@ def render_text_center(surface, string, color, start_y, y_space):
 
 
 def render_font(font, msg, color, center):
-    """Returns the rendered font surface and its rect centered on center."""
+    """Retourne la surface dessinée avec un rectangle centré sur centre"""
     msg = font.render(msg, 1, color)
     rect = msg.get_rect(center=center)
     return msg, rect
 
 
+# Etat principal du jeu
+
 class Game(state_machine.State):
-    """Core state for the actual gameplay."""
+    """Etat coeur du gameplay principal"""
 
     def __init__(self):
         state_machine.State.__init__(self)
@@ -105,9 +107,8 @@ class Game(state_machine.State):
 
     def startup(self, now, persistant):
         """
-        Call the parent class' startup method.
-        If reset_map has been set (after game over etc.) recreate the world
-        map and reset relevant variables.
+        Appel la méthode startup du parent
+        Si reset_map a été définis, alors on redefinit le monde et les variables relevantes.
         """
         state_machine.State.startup(self, now, persistant)
         if 'draw_debug' not in self.persist:
@@ -143,6 +144,7 @@ class Game(state_machine.State):
         self.timer_demo.timer = now
         self.aircraft_team = pygame.sprite.Group(self.aircraft)
         if self.state == 'INGAME':
+            # s'il faut changer l'IA:
             # self.current_AI = ArtificialIntelligence1(self.land, self.aircraft)
             self.current_AI = ArtificialIntelligence2()
             self.current_AI.game_start(self.land, self.aircraft)
@@ -152,6 +154,7 @@ class Game(state_machine.State):
         return self.persist
 
     def restart_game_state(self, reset_map=False):
+        """redemarre l'état sans reset totalement je jeu"""
         self.done = True
         self.state = 'INGAME'
         self.next = "GAME"
@@ -159,12 +162,14 @@ class Game(state_machine.State):
         self.reset_map = reset_map
 
     def reset_game_state(self):
+        """reset totalement le jeu (en cas de game_over)"""
         self.done = True
         self.state = 'INTRO'
         self.reset_game = True
         self.next = "GAME"
 
     def switch_to_demo(self):
+        """appelé lorsque le timer de démo s'est écoulé."""
         self.done = True
         self.next = "DEMO"
         self.reset_game = True
@@ -173,6 +178,8 @@ class Game(state_machine.State):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.reset_game_state()
+            if event.key == pygame.K_q:
+                pygame.event.post(pygame.event.Event(pygame.QUIT, {}))  # close the game gracefully
             if self.state == 'INTRO':
                 if event.key == pygame.K_a:
                     self.switch_to_demo()
@@ -211,7 +218,7 @@ class Game(state_machine.State):
         return self.fuel <= 0
 
     def update(self, keys, now):
-        """Update phase for the primary game state."""
+        """Phase de mise à jour pour l'état principal du jeu."""
         self.now = now
         self.debug_group.update()
         if self.state == 'INTRO' and self.timer_demo.check_tick(now):
@@ -256,6 +263,7 @@ class Game(state_machine.State):
             self.switch_to_demo()
 
     def update_landed(self, now):
+        """Appellée si le module s'est posé"""
         if not self.aircraft.landed_in_grace:
             if self.state == 'INTRO' and self.aircraft.finished_animation:
                 self.next = 'GAME'
@@ -266,7 +274,7 @@ class Game(state_machine.State):
                     if not self.update_fuel(200):
                         self.display_message = GameConfig.TEXT_DESTROYED_FUEL_REMAINING.format(200)
                     else:
-                        self.display_message = GameConfig.TEXT_GAME_OVER
+                        self.display_message = GameConfig.TEXT_GAME_OVER.format(self.score)
                     self.blink = True
                 elif self.aircraft.finished_animation:
                     if self.AI:
@@ -288,6 +296,7 @@ class Game(state_machine.State):
                 self.restart_game_state(True)
 
     def draw(self, surface, interpolate):
+        """Dessine toutes les surfaces du jeu principal"""
         surface.fill(GameConfig.BACKGROUND_COLOR)
         self.land.landingEntities.draw(surface)
         self.aircraft_team.draw(surface)

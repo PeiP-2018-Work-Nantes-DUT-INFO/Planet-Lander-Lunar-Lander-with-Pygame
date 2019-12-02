@@ -1,4 +1,5 @@
 """
+Source: https://github.com/Mekire/cabbages-and-kings
 This module contains the fundamental Control class.
 Also contained here are resource loading functions.
 """
