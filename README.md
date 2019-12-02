@@ -2,6 +2,17 @@
 
 ![Module lunaire](./ressources/splash.jpg)
 
+Inspiré de Lunar Lander.
+
+Par Adame NAJI, Simon SASSI
+
+
+## Attention 
+
+La structure du code s'inspire du jeu libre [Cabbages and king](https://github.com/Mekire/cabbages-and-kings) 
+de [Mekire](https://github.com/Mekire).
+Nous utilisons la même machine à état.
+
 ## Instructions de jeu :
 
 ### Lancer le jeu:
