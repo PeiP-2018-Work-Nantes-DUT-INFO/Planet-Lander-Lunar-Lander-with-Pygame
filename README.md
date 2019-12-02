@@ -164,39 +164,39 @@ Le module lunaire, définie par la classe Lander, est caractérisé par sa posit
 
 Pour faire avancer le vaisseau, on crée un vecteur de force basé sur l’angle du vaisseau (orientation) et une accélération (engine\_power) définie (de manière à rendre le jeu réaliste).
 
-\(\widehat{F} = \ m*\widehat{a}\ \)
+$\widehat{F} = \ m*\widehat{a}\ $
 
 Le vecteur de force appliqué sur le vaisseau est orienté à partir de l’orientation de la façon suivante:
 
-\({\widehat{F}}_{\text{xengine\ }} = \ \text{mass}e_{\text{module}}\ *\ \text{engin}e_{\text{power}}\ *cos(orientation{}_{\text{module}}*\frac{\Pi}{180})\ \)
+${\widehat{F}}_{\text{xengine\ }} = \ \text{mass}e_{\text{module}}\ *\ \text{engin}e_{\text{power}}\ *cos(orientation{}_{\text{module}}*\frac{\Pi}{180})\ $
 
-\({\widehat{F}}_{\text{yengine}} = \ \text{mass}e_{\text{module}}\ *\ \text{engin}e_{\text{power}}\ *sin(orientation{}_{\text{module}}*\frac{\Pi}{180})\)
+${\widehat{F}}_{\text{yengine}} = \ \text{mass}e_{\text{module}}\ *\ \text{engin}e_{\text{power}}\ *sin(orientation{}_{\text{module}}*\frac{\Pi}{180})$
 
 Ce vecteur de force n’est appliqué sur le module que lorsque le joueur active les boosters. Il est donc égal à 0 lorsque le joueur n’appuie pas sur la touche.
 
 Le vecteur de gravité est lui appliquer constamment, c’est une accélération verticale:
 
-\(F_{\text{ygrav}_{}} =\)\({\widehat{a}}_{gravité}*masse_{\text{module}}\ \)
+$F_{\text{ygrav}_{}} =\)\({\widehat{a}}_{gravité}*masse_{\text{module}}\ $
 
 L’accélération du module en x et en y est obtenue à partir de la somme de toutes les forces que subit le module:
 
-\({\widehat{F}}_{x} = {\widehat{F}}_{\text{xengine\ }}\ \)
+${\widehat{F}}_{x} = {\widehat{F}}_{\text{xengine\ }}\ $
 
-\({\widehat{F}}_{y} = {\widehat{F}}_{\text{xengine\ }} + \ F_{\text{ygrav}_{}}\ \)
+${\widehat{F}}_{y} = {\widehat{F}}_{\text{xengine\ }} + \ F_{\text{ygrav}_{}}\ $
 
 On stocke les coordonnées x et y de ce vecteur (fx et fy). On utilise ces coordonnées pour définir une accélération qui sera décrite horizontalement (ax) et verticalement (ay).
 
 On la calcule ainsi :
 
-Comme \(\widehat{F} = \ m*\widehat{a}\ \)alors \(\widehat{a} = \frac{\widehat{F}}{m}\ \) \(\ \)
+Comme \(\widehat{F} = \ m*\widehat{a}\ \)alors \(\widehat{a} = \frac{\widehat{F}}{m}\ \) \(\ $
 
-\(\widehat{a_{x}} = \frac{\widehat{F_{x}}}{m}\)\(\widehat{a_{y}} = \frac{\widehat{F_{y}}}{m}\)
+$\widehat{a_{x}} = \frac{\widehat{F_{x}}}{m}\)\(\widehat{a_{y}} = \frac{\widehat{F_{y}}}{m}$
 
-Une fois l’accélération obtenue, on ajoute cette dernière à la vitesse courante via les formules suivantes : \(v_{x} = v_{\text{x\ }} + \widehat{a_{x}}*dt\) et \(v_{y} = v_{\text{y\ }} + \widehat{a_{y}}*dt\)
+Une fois l’accélération obtenue, on ajoute cette dernière à la vitesse courante via les formules suivantes : \(v_{x} = v_{\text{x\ }} + \widehat{a_{x}}*dt\) et \(v_{y} = v_{\text{y\ }} + \widehat{a_{y}}*dt$
 
-\(\text{dt}\) correspond au temps écoulé (ce temps est fixé dans le jeu).
+$\text{dt}\) correspond au temps écoulé (ce temps est fixé dans le jeu).
 
-La dernière étape consiste à mettre à jour les coordonnées du vaisseau y ajoutant la vitesse par rapport à un temps \(\text{dt}\) prédéfini : \(x = x + v_{x}*dt\) et \(y = y + v_{y}*dt\)
+La dernière étape consiste à mettre à jour les coordonnées du vaisseau y ajoutant la vitesse par rapport à un temps \(\text{dt}\) prédéfini : \(x = x + v_{x}*dt\) et \(y = y + v_{y}*dt$
 
 ### Rotation du module et du triangle
 
@@ -224,7 +224,7 @@ Chacun des points de l’image vont être tournées tour à tour.
 
 La “flamme” du module lunaire est un triangle dont la taille grandit quand le joueur appuie sur la touche pour booster et diminue lorsque le joueur n'appuie plus. La flamme fluctue au fur et à mesure du temps. Les points du triangle, qui sont relatifs au centre du vaisseau, utilisent aussi une matrice de rotation. Afin que la transition de disparition de la flamme soit plus réelle, la hauteur du triangle diminue en fonction de la racine carrée du temps:
 
-\(\text{hauteur}{}_{\text{triangle}} = \ hauteur{}_{\text{triangle}} -\)
+$\text{hauteur}{}_{\text{triangle}} = \ hauteur{}_{\text{triangle}} -$
 
 ### Prédiction de la trajectoire du module lunaire![](media/media/image16.png)
 
@@ -232,9 +232,9 @@ La module lunaire prédit à chaque fois la trajectoire qu’il va effectuer (à
 
 Cette trajectoire est composée d’un ensemble de points par lesquels le centre du module va passer. Elle est déterminée à partir de la vélocité initiale et de la gravité. La trajectoire est recalculé lorsque le joueur modifie les forces du module (lorsqu’il utilise le booster). Les points de trajectoire sont obtenues en augmentant le temps passé \(\text{dt}\) à chaque fois:
 
-\(x\  = \ v_{\text{x\ module}}*dt + x_{\text{module}}\)
+$x\  = \ v_{\text{x\ module}}*dt + x_{\text{module}}$
 
-\(y = \frac{1}{2}*gravité\ *\ (dt²)\  + \ v_{\text{y\ module}_{}}*dt\  + y_{\text{module}}\)
+$y = \frac{1}{2}*gravité\ *\ (dt²)\  + \ v_{\text{y\ module}_{}}*dt\  + y_{\text{module}}$
 
 La formule \(\frac{1}{2}*gravité\ *\ (dt²)\) est une simple intégration de l’accélération.
 
@@ -262,7 +262,7 @@ La seconde IA est plus complète que la première avec un fonctionnement mathém
 
 La distance minimale à partir de laquelle activer la “poussée inverse” (le module est orienté à -180° afin d’annuler sa vélocité horizontale) est déterminé à partir de la formule suivante:
 
-\(\text{distanc}e_{\text{minimal}} = \frac{v_{x}²}{2*a}\)
+$\text{distanc}e_{\text{minimal}} = \frac{v_{x}²}{2*a}$
 
 ou \(v_{x}\)est la vitesse horizontale du module et \(a\)est l’accélération du module (égale à engine\_power)
 
@@ -270,13 +270,13 @@ Lorsque le module se trouve au-dessus de la plateforme, il s’oriente à 90° a
 
 En augmentant \(\text{dt}\)avec un petit pas à chaque fois, on obtient la vitesse verticale et la distance verticale parcourue à chaque instant.
 
-\(v_{y} = v_{\text{y\ module}} + \ g\ *dt\)
+$v_{y} = v_{\text{y\ module}} + \ g\ *dt$
 
-\(d_{y} = 0.5\ *\ g\ *\ i²\  + \ v_{\text{y\ module}}\ *\ dt\)
+$d_{y} = 0.5\ *\ g\ *\ i²\  + \ v_{\text{y\ module}}\ *\ dt$
 
 A chaque futur instant, on peut ainsi calculer la distance minimale nécessaire à partir de la vitesse à l’instant:
 
-\(\text{distanc}e_{\text{minimal}} = \frac{v_{y}²}{2*a}\)ou \(a = engine_{\text{power}} - g\)
+$\text{distanc}e_{\text{minimal}} = \frac{v_{y}²}{2*a}\)ou \(a = engine_{\text{power}} - g$
 
 Si cette distance minimale est trop grande (qu’elle dépasse la plateforme, c’est à cet instant que l’on doit activer le booster).
 
