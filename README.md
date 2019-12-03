@@ -1,20 +1,30 @@
-# Planet Lander avec Pygame !
+# Planet Lander (Lunar Lander) with Pygame !
 
-![Module lunaire](./ressources/splash.jpg)
+![Lunar module](./ressources/splash.jpg)
 
-Inspiré de Lunar Lander.
+Based on Lunar Lander from 1979 by Atari.
 
-Par Adame NAJI, Simon SASSI
+By Adame NAJI & Simon SASSI
 
-## Dépôt officiel:
+## Features:
+
+- Random terrain generation
+
+- AI playing the game.
+
+- Fullscreen mode
+
+- Beautiful demo mode
+
+## Official repo:
 
 https://gitlab.univ-nantes.fr/E183694S/planet-lander-python
 
-## Attention 
+## Warning 
 
-La structure du code s'inspire du jeu libre [Cabbages and king](https://github.com/Mekire/cabbages-and-kings) 
-de [Mekire](https://github.com/Mekire).
-Nous utilisons la même machine à état.
+Code structure is inspired from the game [Cabbages and king](https://github.com/Mekire/cabbages-and-kings) 
+of [Mekire](https://github.com/Mekire).
+We are using the same state machine.
 
 ```
 
@@ -26,53 +36,63 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
-## Instructions de jeu :
+## Game instructions :
 
-### Lancer le jeu:
+### Launching the game:
 
 Requirements:
 `pygame >= 1.8.1`
 `python3`
 
-Pour lancer le jeu, faites
+To launch the game, run
 `python3 run_game.py`
 
-### Démarrer le jeu en plein écran / changer la taille de la fenêtre.
+### Starting the game in fullscreen mode / changing window size manually.
 
-Rendez vous dans [game_config.py](game_config.py) et mettez `ENABLE_FULLSCREEN` à `True`
+Go to [game_config.py](game_config.py) and set `ENABLE_FULLSCREEN` to `True`
 
-Vous pouvez aussi modifier les variables `WINDOW_W_WINDOWED/WINDOW_H_WINDOWED`
+You can also edit `WINDOW_W_WINDOWED/WINDOW_H_WINDOWED` variables to change the window size in windowed mode.
 
-### Contrôles du jeu:
+### Game controls:
 
-| Commandes clavier                            | Description                                 |
+| Key                           | Description                                 |
 |----------------------------------------------|---------------------------------------------|
-| Flèche Gauche (pendant le jeu)               | Rotation du vaisseau de +2° (sur sa droite) |
-| Flèche Droite (pendant le jeu)               | Rotation du vaisseau de -2° (sur sa gauche) |
-| Flèche Haute/ Touche Espace (Pendant le jeu) | Activation du booster (Accélération)        |
-| Touche D  (Avant le jeu)                     | Active le mode debug                        |
-| Touche P(Avant le jeu)                       | Active la prediction de trajectoire         |
-| Touche I (Avant le jeu)                      | Le jeu commence avec l’IA au commande       |
-| Touche U/J (Avant le jeu)                    | Augmente/Diminue le nombre de plateformes   |
-| Flèche Haute/Basse (Avant le jeu)            | Augmente/Diminue la quantité de fuel        |
-| Touche A (Avant le jeu)                      | Active la démo                              |
-| Touche Entrée                                | Lance une nouvelle partie                   |
-| Touche Q                                     | Quitte le jeu (important !)                 |
+| Arrow left (in game)               | Rotate aircraft by +2° (to the right) |
+| Arrow right (in game)               | Rotate aircraft by -2° (to the left) |
+| Arrow Up/ Space Bar (in game) | Aircraft boost        |
+| Key D  (before game)                     | Enable map debug                       |
+| Key P (before game)                      | Enable trajectory prediction         |
+| Key I (before game)                      | Start game with AI       |
+| Key U/J (before game)                    | Increase/Decrease number of plateforms   |
+| Arrow Up/Down (before game)            | Increase/Decrease fuel quantity        |
+| Key A (before game)                     | Enable demo mode                             |
+| Key ENTER                                | Launch a new game                  |
+| Key Q                                     | Quit the game                 |
 
-## Points à améliorer
+## ToDo
 
-- Prendre en compte les frottements comme dans le jeu originel 
+- Implement drag like the original game 
 
-- Mettre une vitesse aléatoire au début de chaque partie (très simple)
+- Random velocity of aircraft when it spawn (fix to 50 vx)
 
-- Rendre la map 'ronde' comme sur la lune (le joueur est retéleporté à un autre bord de l'écran)
+- Enable map wrapping (player is telepported at the opposite edge when he reach a edge)
 
-- IA: Calculer l'essence necessaire pour aller sur une plateforme, et ansi optimiser le socre
+- AI: Estimate the best plateform to land to maximize point (predict fuel use)
 
+- AI: Calculate the best min height to allow the aircraft to rotate before he stabilize on the plateform
+
+## Screenshots
+
+![Credits](media/media/intro.png)
+
+
+![Credits](media/media/ai.png)
+
+![Credits](media/media/credit.png)
 --------------------------------------------
-# Rapport:
+# Report:
 
-Le rapport rendu au professeur
+Only in french. Report given to the teacher.
 
 ## Introduction
 
