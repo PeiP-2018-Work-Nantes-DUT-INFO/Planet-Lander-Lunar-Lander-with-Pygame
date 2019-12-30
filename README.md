@@ -44,6 +44,14 @@ Requirements:
 `pygame >= 1.8.1`
 `python3`
 
+Install:
+
+`git clone https://github.com/maxerbox/Planet-Lander-with-pygame --branch 1.2-final`
+
+`cd planet-Lander-with-pygame`
+
+`pip3 install pygame`
+
 To launch the game, run
 `python3 run_game.py`
 
