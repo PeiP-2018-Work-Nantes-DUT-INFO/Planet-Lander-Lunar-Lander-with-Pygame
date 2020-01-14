@@ -89,10 +89,13 @@ You can also edit `WINDOW_W_WINDOWED/WINDOW_H_WINDOWED` variables to change the 
 
 - AI: Calculate the best min height to allow the aircraft to rotate before he stabilize on the plateform
 
-## Screenshots
+## Screenshots / Video
+
+#### Video
+
+<a href="https://streamable.com/gbzrh"><img src="https://i.imgur.com/HcWcSql.png"></a>
 
 ![Credits](media/media/intro.png)
-
 
 ![Credits](media/media/ai.png)
 
