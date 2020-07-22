@@ -30,7 +30,7 @@ def main():
     _screen.blit(_render, _render.get_rect(center=GameConfig.SCREEN_RECT.center))
     pygame.display.update()
 
-    pygame.mixer.music.load(path.join('ressources', 'music.mp3'))
+    pygame.mixer.music.load(path.join('ressources', 'music.ogg'))
     pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(0.2)
 
